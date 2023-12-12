@@ -1,15 +1,15 @@
 package services
 
 import (
-	dtoPi "admin-v2/api/dto/productInformation"
-	"admin-v2/api/helpers"
-	"admin-v2/db/models"
 	"encoding/json"
 	"log"
 	"math"
 	"net/http"
 
 	"github.com/go-chi/chi"
+	dtoPi "github.com/tiqueteo/adminv2-mock-api/api/dto/productInformation"
+	"github.com/tiqueteo/adminv2-mock-api/api/helpers"
+	"github.com/tiqueteo/adminv2-mock-api/db/models"
 	"gorm.io/gorm/clause"
 )
 
@@ -53,7 +53,7 @@ func (sm *ServiceManager) GetProductInfoById(w http.ResponseWriter, r *http.Requ
 	}
 	VenueSet := []int{}
 	for _, venue := range productInfo.VenueSet {
-		VenueSet = append(VenueSet, venue.VenueId)
+		VenueSet = append(VenueSet, venue.VenueCapacityId)
 	}
 	productInfoResp := dtoPi.GetProductInfo{
 		VenueSet:      VenueSet,

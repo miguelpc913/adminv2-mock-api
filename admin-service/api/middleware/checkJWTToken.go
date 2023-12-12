@@ -1,13 +1,13 @@
 package AdminMiddleware
 
 import (
-	"admin-v2/api/helpers"
 	"fmt"
 	"net/http"
 	"os"
 	"strings"
 
 	"github.com/golang-jwt/jwt"
+	"github.com/tiqueteo/adminv2-mock-api/api/helpers"
 )
 
 // HTTP middleware setting a value on the request context

@@ -1,8 +1,6 @@
 package services
 
 import (
-	dtoLogin "admin-v2/api/dto/login"
-	"admin-v2/api/helpers"
 	"encoding/json"
 	"fmt"
 	"net/http"
@@ -10,6 +8,8 @@ import (
 	"time"
 
 	"github.com/golang-jwt/jwt"
+	dtoLogin "github.com/tiqueteo/adminv2-mock-api/api/dto/login"
+	"github.com/tiqueteo/adminv2-mock-api/api/helpers"
 )
 
 func (sm *ServiceManager) Login(w http.ResponseWriter, r *http.Request) {
@@ -41,9 +41,9 @@ func (sm *ServiceManager) Login(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	var token = map[string]interface{}{
-		"token": tokenString,
+		"access_token": tokenString,
 	}
-	helpers.WriteJSON(w, http.StatusBadRequest, token)
+	helpers.WriteJSON(w, http.StatusOK, token)
 }
 
 func CreateJWT(loginReq dtoLogin.LoginReq) (string, error) {

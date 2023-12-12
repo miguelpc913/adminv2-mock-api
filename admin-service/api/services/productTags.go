@@ -1,10 +1,11 @@
 package services
 
 import (
-	"admin-v2/api/helpers"
-	"admin-v2/db/models"
 	"math"
 	"net/http"
+
+	"github.com/tiqueteo/adminv2-mock-api/api/helpers"
+	"github.com/tiqueteo/adminv2-mock-api/db/models"
 )
 
 func (serviceManager *ServiceManager) GetProductTags(w http.ResponseWriter, r *http.Request) {

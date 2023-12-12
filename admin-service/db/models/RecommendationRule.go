@@ -1,9 +1,9 @@
 package models
 
 import (
-	dbhelpers "admin-v2/db/helpers"
 	"time"
 
+	dbhelpers "github.com/tiqueteo/adminv2-mock-api/db/helpers"
 	"gorm.io/gorm"
 )
 
@@ -13,9 +13,9 @@ type RecommendationRule struct {
 	Name                       string                 `json:"name"`
 	OfferingType               string                 `json:"offeringType"`
 	ProductId                  int                    `json:"productId"`
-	Product                    Product                `json:"-"`
+	Product                    Product                `json:"product"`
 	OfferedProductId           int                    `json:"offeredProductId"`
-	OfferedProduct             Product                `json:"-" gorm:"foreignKey:OfferedProductId"`
+	OfferedProduct             Product                `json:"offeredProduct" gorm:"foreignKey:OfferedProductId"`
 	DirectAddToCart            bool                   `json:"directAddToCart"`
 	StartDatetime              time.Time              `json:"startDatetime"`
 	EndDatetime                time.Time              `json:"endDatetime"`

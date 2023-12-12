@@ -1,10 +1,10 @@
 package db
 
 import (
-	"admin-v2/db/models"
 	"fmt"
 	"os"
 
+	"github.com/tiqueteo/adminv2-mock-api/db/models"
 	"gorm.io/driver/mysql"
 	"gorm.io/gorm"
 )

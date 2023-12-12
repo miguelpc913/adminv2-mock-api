@@ -1,9 +1,9 @@
 package models
 
 import (
-	dbhelpers "admin-v2/db/helpers"
 	"time"
 
+	dbhelpers "github.com/tiqueteo/adminv2-mock-api/db/helpers"
 	"gorm.io/gorm"
 )
 

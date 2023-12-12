@@ -1,18 +1,18 @@
 package services
 
 import (
-	dtoRr "admin-v2/api/dto/recommendationRules"
-	"admin-v2/api/helpers"
-	"admin-v2/db/models"
 	"encoding/json"
 	"math"
 	"net/http"
 
 	"github.com/go-chi/chi"
+	dtoRr "github.com/tiqueteo/adminv2-mock-api/api/dto/recommendationRules"
+	"github.com/tiqueteo/adminv2-mock-api/api/helpers"
+	"github.com/tiqueteo/adminv2-mock-api/db/models"
 	"gorm.io/gorm/clause"
 )
 
-func (serviceManager *ServiceManager) GetRecommendationRules(w http.ResponseWriter, r *http.Request) {
+func (sm *ServiceManager) GetRecommendationRules(w http.ResponseWriter, r *http.Request) {
 	var recommendations []models.RecommendationRule
 	productId := r.URL.Query().Get("productId")
 	pagination := helpers.GeneratePaginationFromRequest(r)
@@ -20,9 +20,9 @@ func (serviceManager *ServiceManager) GetRecommendationRules(w http.ResponseWrit
 	offset := (pagination.CurrentPage - 1) * pagination.Limit
 	var totalItems int64
 	if productId != "" {
-		_ = serviceManager.db.Model(&recommendations).Where("product_id = ?", productId).Count(&totalItems).Limit(pagination.Limit).Offset(offset).Find(&recommendations)
+		_ = sm.db.Preload(clause.Associations).Model(&recommendations).Where("product_id = ?", productId).Count(&totalItems).Limit(pagination.Limit).Offset(offset).Find(&recommendations)
 	} else {
-		_ = serviceManager.db.Model(&recommendations).Count(&totalItems).Limit(pagination.Limit).Offset(offset).Find(&recommendations)
+		_ = sm.db.Preload(clause.Associations).Model(&recommendations).Count(&totalItems).Limit(pagination.Limit).Offset(offset).Find(&recommendations)
 	}
 	response["recommendationRules"] = recommendations
 	response["limit"] = pagination.Limit

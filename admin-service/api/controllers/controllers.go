@@ -1,11 +1,11 @@
 package controllers
 
 import (
-	AdminMiddleware "admin-v2/api/middleware"
-	"admin-v2/api/services"
-
 	"github.com/go-chi/chi"
 	"github.com/go-chi/chi/middleware"
+	"github.com/go-chi/cors"
+	AdminMiddleware "github.com/tiqueteo/adminv2-mock-api/api/middleware"
+	"github.com/tiqueteo/adminv2-mock-api/api/services"
 	"gorm.io/gorm"
 )
 
@@ -13,11 +13,23 @@ func Init(db *gorm.DB) *chi.Mux {
 	r := chi.NewRouter()
 	r.Use(middleware.Logger)
 	sm := services.NewServiceManager(db)
+	r.Use(cors.Handler(cors.Options{
+		AllowedOrigins:   []string{"http://localhost:8000"},
+		AllowedMethods:   []string{"GET", "POST", "PUT", "DELETE", "OPTIONS"},
+		AllowedHeaders:   []string{"Accept", "Authorization", "Content-Type", "X-CSRF-Token"},
+		ExposedHeaders:   []string{"Link"},
+		AllowCredentials: true, // Set to true if you want to allow credentials
+		MaxAge:           300,  // Maximum value not ignored by any of the major browsers
+	}))
 
 	r.Post("/login", sm.Login)
 	r.Route("/products", func(r chi.Router) {
 		r.Use(AdminMiddleware.CheckJTW)
 		r.Get("/", sm.GetProducts)
+	})
+	r.Route("/venueCapacities", func(r chi.Router) {
+		r.Use(AdminMiddleware.CheckJTW)
+		r.Get("/", sm.GetVenues)
 	})
 	r.Route("/salesGroups", func(r chi.Router) {
 		r.Use(AdminMiddleware.CheckJTW)

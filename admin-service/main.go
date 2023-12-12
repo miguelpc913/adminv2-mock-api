@@ -1,9 +1,10 @@
 package main
 
 import (
-	"admin-v2/api/controllers"
-	"admin-v2/db"
 	"net/http"
+
+	"github.com/tiqueteo/adminv2-mock-api/api/controllers"
+	"github.com/tiqueteo/adminv2-mock-api/db"
 )
 
 func main() {

@@ -5,6 +5,7 @@ go 1.18
 require gorm.io/gorm v1.25.5
 
 require (
+	github.com/go-chi/cors v1.2.1 // indirect
 	github.com/go-sql-driver/mysql v1.7.0 // indirect
 	github.com/golang-jwt/jwt v3.2.2+incompatible // indirect
 )

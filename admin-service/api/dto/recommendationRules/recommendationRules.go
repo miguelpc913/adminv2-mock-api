@@ -1,6 +1,6 @@
 package dtoRr
 
-import "admin-v2/db/models"
+import "github.com/tiqueteo/adminv2-mock-api/db/models"
 
 type DisplayOrderRequest struct {
 	RecommendationRuleId int `json:"recommendationRuleId"`

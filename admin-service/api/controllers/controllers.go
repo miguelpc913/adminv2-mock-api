@@ -69,5 +69,19 @@ func Init(db *gorm.DB) *chi.Mux {
 		r.Put("/{id}/salesGroups", sm.PutRecommendationSalesGroups)
 		r.Put("/{id}/buyerTypes", sm.PutRecommendationBuyerTypes)
 	})
+	r.Route("/promotions", func(r chi.Router) {
+		r.Use(AdminMiddleware.CheckJTW)
+		r.Get("/", sm.GetPromotions)
+		r.Get("/{id}", sm.GetPromotionById)
+		r.Post("/", sm.PostPromotion)
+		r.Post("/promotionalCodes/validate", sm.PostValidateCode)
+		r.Put("/{id}/identity", sm.PutPromotionIdentity)
+		r.Put("/{id}/general", sm.PutPromotionGeneral)
+		r.Put("/{id}/validities", sm.PutPromotionValidities)
+		r.Put("/{id}/advancedSettings", sm.PutPromotionAdvancedSettings)
+		r.Put("/{id}/salesGroups", sm.PutPromotionSalesGroups)
+		r.Put("/{id}/buyerTypes", sm.PutPromotionBuyerTypes)
+		r.Put("/{id}/products", sm.PutPromotionProducts)
+	})
 	return r
 }

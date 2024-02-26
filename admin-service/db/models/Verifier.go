@@ -27,7 +27,7 @@ type Verifier struct {
 	FixedDate        *time.Time     `json:"fixedDate,omitempty"`
 	CheckMaxCapacity bool           `json:"checkMaxCapacity"`
 	SalesGroupSet    []SalesGroup   `json:"salesGroupSet" gorm:"many2many:salesgroups_verifiers;"`
-	CreatedAt        time.Time      `json:"created_at"`
-	UpdatedAt        time.Time      `json:"updated_at"`
-	DeletedAt        gorm.DeletedAt `json:"deleted_at"`
+	CreatedAt        time.Time      `json:"-"`
+	UpdatedAt        time.Time      `json:"-"`
+	DeletedAt        gorm.DeletedAt `json:"-"`
 }

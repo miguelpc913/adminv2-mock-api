@@ -21,9 +21,9 @@ type ProductInfo struct {
 	Weekdays          dbhelpers.JSONIntSLice    `json:"weekDays" gorm:"type:JSON"`
 	SelectedDates     dbhelpers.JSONStringSlice `json:"selectedDates" gorm:"type:JSON"`
 	DisplayOrder      int                       `json:"displayOrder"`
-	CreatedAt         time.Time                 `json:"created_at"`
-	UpdatedAt         time.Time                 `json:"updated_at"`
-	DeletedAt         gorm.DeletedAt            `json:"deleted_at"`
+	CreatedAt         time.Time                 `json:"-"`
+	UpdatedAt         time.Time                 `json:"-"`
+	DeletedAt         gorm.DeletedAt            `json:"-"`
 	SalesGroupSet     []SalesGroup              `json:"salesGroupSet" gorm:"many2many:productinfo_salesgroups;"`
 	ProductSet        []Product                 `json:"productSet" gorm:"many2many:productinfo_products;"`
 	VenueSet          []Venue                   `json:"venueSet" gorm:"many2many:productinfo_venue;"`

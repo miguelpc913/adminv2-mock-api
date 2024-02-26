@@ -70,9 +70,9 @@ type SalesGroup struct {
 	OrderSpecialEvents    OrderSpecialEventsType `json:"orderSpecialEvents"`
 	InfoMessage           string                 `json:"infoMessage"`
 	DisplayOrder          int                    `json:"displayOrder"`
-	CreatedAt             time.Time              `json:"created_at"`
-	UpdatedAt             time.Time              `json:"updated_at"`
-	DeletedAt             gorm.DeletedAt         `json:"deleted_at"`
+	CreatedAt             time.Time              `json:"-"`
+	UpdatedAt             time.Time              `json:"-"`
+	DeletedAt             gorm.DeletedAt         `json:"-"`
 	BuyerTypesSet         []BuyerType            `json:"buyerTypesSet" gorm:"many2many:salesgroups_buyertypes;"`
 	PaymentMethodsSet     []PaymentMethod        `json:"paymentMethodsSet" gorm:"many2many:salesgroups_paymentmethods;"`
 	VerifierSet           []Verifier             `json:"verifiersSet" gorm:"many2many:salesgroups_verifiers;"`

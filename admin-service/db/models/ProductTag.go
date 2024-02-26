@@ -13,7 +13,7 @@ type ProductTag struct {
 	ProductCategoryGeneral bool           `json:"productCategoryGeneral"`
 	ProductSet             []Product      `json:"productSet" gorm:"many2many:products_tags;"`
 	SalesGroupSet          []SalesGroup   `json:"salesGroupSet" gorm:"many2many:salesgroups_tags;"`
-	CreatedAt              time.Time      `json:"created_at"`
-	UpdatedAt              time.Time      `json:"updated_at"`
-	DeletedAt              gorm.DeletedAt `json:"deleted_at"`
+	CreatedAt              time.Time      `json:"-"`
+	UpdatedAt              time.Time      `json:"-"`
+	DeletedAt              gorm.DeletedAt `json:"-"`
 }

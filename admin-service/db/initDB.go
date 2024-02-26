@@ -38,6 +38,9 @@ func InitDB() (db *gorm.DB, err error) {
 	db.AutoMigrate(&models.ProductInfo{})
 	db.AutoMigrate(&models.ProductInfoType{})
 	db.AutoMigrate(&models.RecommendationRule{})
+	db.AutoMigrate(&models.Promotion{})
+	db.AutoMigrate(&models.PromotionPrice{})
+	db.AutoMigrate(&models.PromotionalCode{})
 	fmt.Println("Successfully connected!", db)
 	return db, nil
 }

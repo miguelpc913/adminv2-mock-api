@@ -53,6 +53,8 @@ type Promotion struct {
 	PromotionalCodeSet          []PromotionalCode         `json:"promotionalCodeSet"`
 	StartDatetime               time.Time                 `json:"startDatetime"`
 	EndDatetime                 time.Time                 `json:"endDatetime"`
+	StartTime                   string                    `json:"startTime"`
+	EndTime                     string                    `json:"endTime"`
 	EventStartDatetime          time.Time                 `json:"eventStartDatetime"`
 	EventEndDatetime            time.Time                 `json:"eventEndDatetime"`
 	MinSecondsBeforeEvent       int                       `json:"minSecondsBeforeEvent"`

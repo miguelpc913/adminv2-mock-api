@@ -6,6 +6,7 @@ import (
 	"math"
 	"net/http"
 	"strconv"
+	"time"
 
 	"github.com/go-chi/chi"
 	dtoPromotion "github.com/tiqueteo/adminv2-mock-api/api/dto/promotion"
@@ -76,12 +77,12 @@ func (sm *ServiceManager) PutPromotionGeneral(w http.ResponseWriter, r *http.Req
 		helpers.WriteJSON(w, http.StatusNotFound, map[string]string{"error": "There is no promotion with that id"})
 		return
 	}
-	if promotion.CodeType == "generated" {
+	if *promotion.CodeType == "generated" {
 		for i := 0; i < req.NumberOfCodes; i++ {
-			generatedCode := helpers.RandStringBytes(promotion.CodeLength)
+			generatedCode := helpers.RandStringBytes(*promotion.CodeLength)
 			promotionCode := models.PromotionalCode{
 				Code:        generatedCode,
-				Quantity:    strconv.Itoa(promotion.Quantity),
+				Quantity:    strconv.Itoa(*promotion.Quantity),
 				PromotionId: promotion.PromotionId,
 			}
 			promotionCodes = append(promotionCodes, promotionCode)
@@ -102,7 +103,7 @@ func (sm *ServiceManager) PutPromotionGeneral(w http.ResponseWriter, r *http.Req
 		return
 	}
 	sm.db.Model(&promotion).Association("PromotionalCodeSet").Replace(promotionCodes)
-	err = sm.db.Model(&promotion).Where("promotion_id = ?", promotion_id).Select("Amount", "Percentage", "LeftPurchased", "RightPaid", "IsPromotionAffiliateEnabled", "HideAmountAtTicket", "ShowOriginalAmountAtTicket", "IsGrouped", "RedeemType", "CodeType", "NumberOfCodes", "CodeLength", "Quantity").Updates(models.Promotion{Amount: req.Amount, Percentage: req.Percentage, LeftPurchased: req.LeftPurchased, RightPaid: req.RightPaid, IsPromotionAffiliateEnabled: req.IsPromotionAffiliateEnabled, HideAmountAtTicket: req.HideAmountAtTicket, ShowOriginalAmountAtTicket: req.ShowOriginalAmountAtTicket, IsGrouped: req.IsGrouped, RedeemType: req.RedeemType, CodeType: req.CodeType, NumberOfCodes: req.NumberOfCodes, CodeLength: req.CodeLength, Quantity: req.Quantity}).Error
+	err = sm.db.Model(&promotion).Where("promotion_id = ?", promotion_id).Select("Amount", "Percentage", "LeftPurchased", "RightPaid", "IsPromotionAffiliateEnabled", "HideAmountAtTicket", "ShowOriginalAmountAtTicket", "IsGrouped", "RedeemType", "CodeType", "NumberOfCodes", "CodeLength", "Quantity").Updates(models.Promotion{Amount: &req.Amount, Percentage: &req.Percentage, LeftPurchased: &req.LeftPurchased, RightPaid: &req.RightPaid, IsPromotionAffiliateEnabled: &req.IsPromotionAffiliateEnabled, HideAmountAtTicket: req.HideAmountAtTicket, ShowOriginalAmountAtTicket: req.ShowOriginalAmountAtTicket, IsGrouped: req.IsGrouped, RedeemType: &req.RedeemType, CodeType: &req.CodeType, NumberOfCodes: &req.NumberOfCodes, CodeLength: &req.CodeLength, Quantity: &req.Quantity}).Error
 	if err != nil {
 		helpers.WriteJSON(w, http.StatusBadRequest, map[string]string{"error": "Couldn't update"})
 		return
@@ -134,25 +135,35 @@ func (sm *ServiceManager) PutPromotionValidities(w http.ResponseWriter, r *http.
 		helpers.WriteJSON(w, http.StatusBadRequest, map[string]string{"error": "EndDatetime is not valid"})
 		return
 	}
-	eventStartDatetime, err := helpers.ParseDateTime(req.EventStartDatetime)
-	if err != nil {
-		helpers.WriteJSON(w, http.StatusBadRequest, map[string]string{"error": "EventStartDatetime is not valid"})
-		return
+	var eventStartDatetime *time.Time
+	if req.EventStartDatetime != nil {
+		eventStartDatetimeValue, err := helpers.ParseDateTime(*req.EventStartDatetime)
+		eventStartDatetime = &eventStartDatetimeValue
+		if err != nil {
+			helpers.WriteJSON(w, http.StatusBadRequest, map[string]string{"error": "EventStartDatetime is not valid"})
+			return
+		}
 	}
-	eventEndDatetime, err := helpers.ParseDateTime(req.EventEndDatetime)
-	if err != nil {
-		helpers.WriteJSON(w, http.StatusBadRequest, map[string]string{"error": "EventEndDatetime is not valid"})
-		return
+	var eventEndDatetime *time.Time
+	if req.EventEndDatetime != nil {
+		eventEndDatetimeValue, err := helpers.ParseDateTime(*req.EventEndDatetime)
+		eventEndDatetime = &eventEndDatetimeValue
+		if err != nil {
+			helpers.WriteJSON(w, http.StatusBadRequest, map[string]string{"error": "EventEndDatetime is not valid"})
+			return
+		}
 	}
 
 	promotion = models.Promotion{
 		StartDatetime:         startDateTime,
 		EndDatetime:           endDatetime,
+		StartTime:             &req.StartTime,
+		EndTime:               &req.EndTime,
 		EventStartDatetime:    eventStartDatetime,
 		EventEndDatetime:      eventEndDatetime,
 		WeekDay:               req.WeekDay,
-		MinSecondsBeforeEvent: req.MinSecondsBeforeEvent,
-		MaxSecondsBeforeEvent: req.MaxSecondsBeforeEvent,
+		MinSecondsBeforeEvent: &req.MinSecondsBeforeEvent,
+		MaxSecondsBeforeEvent: &req.MaxSecondsBeforeEvent,
 		DisabledDates:         req.DisabledDates,
 	}
 	err = sm.db.Model(promotion).Where("promotion_id = ?", id).Updates(promotion).Error
@@ -317,15 +328,24 @@ func (sm *ServiceManager) PostPromotion(w http.ResponseWriter, r *http.Request) 
 		helpers.WriteJSON(w, http.StatusBadRequest, map[string]string{"error": "EndDatetime is not valid"})
 		return
 	}
-	eventStartDatetime, err := helpers.ParseDateTime(req.EventStartDatetime)
-	if err != nil {
-		helpers.WriteJSON(w, http.StatusBadRequest, map[string]string{"error": "EventStartDatetime is not valid"})
-		return
+
+	var eventStartDatetime *time.Time
+	if req.EventStartDatetime != nil {
+		eventStartDatetimeValue, err := helpers.ParseDateTime(*req.EventStartDatetime)
+		eventStartDatetime = &eventStartDatetimeValue
+		if err != nil {
+			helpers.WriteJSON(w, http.StatusBadRequest, map[string]string{"error": "EventStartDatetime is not valid"})
+			return
+		}
 	}
-	eventEndDatetime, err := helpers.ParseDateTime(req.EventEndDatetime)
-	if err != nil {
-		helpers.WriteJSON(w, http.StatusBadRequest, map[string]string{"error": "EventEndDatetime is not valid"})
-		return
+	var eventEndDatetime *time.Time
+	if req.EventEndDatetime != nil {
+		eventEndDatetimeValue, err := helpers.ParseDateTime(*req.EventEndDatetime)
+		eventEndDatetime = &eventEndDatetimeValue
+		if err != nil {
+			helpers.WriteJSON(w, http.StatusBadRequest, map[string]string{"error": "EventEndDatetime is not valid"})
+			return
+		}
 	}
 
 	//Manage associations
@@ -370,27 +390,29 @@ func (sm *ServiceManager) PostPromotion(w http.ResponseWriter, r *http.Request) 
 		Name:                        req.Name,
 		ShortName:                   req.ShortName,
 		PromotionType:               req.PromotionType,
-		Amount:                      req.Amount,
-		Percentage:                  req.Percentage,
-		LeftPurchased:               req.LeftPurchased,
-		RightPaid:                   req.RightPaid,
-		IsPromotionAffiliateEnabled: req.IsPromotionAffiliateEnabled,
+		Amount:                      &req.Amount,
+		Percentage:                  &req.Percentage,
+		LeftPurchased:               &req.LeftPurchased,
+		RightPaid:                   &req.RightPaid,
+		IsPromotionAffiliateEnabled: &req.IsPromotionAffiliateEnabled,
 		HideAmountAtTicket:          req.HideAmountAtTicket,
 		ShowOriginalAmountAtTicket:  req.ShowOriginalAmountAtTicket,
 		IsGrouped:                   req.IsGrouped,
-		RedeemType:                  req.RedeemType,
-		CodeType:                    req.CodeType,
-		NumberOfCodes:               req.NumberOfCodes,
-		CodeLength:                  req.CodeLength,
-		Quantity:                    req.Quantity,
+		RedeemType:                  &req.RedeemType,
+		CodeType:                    &req.CodeType,
+		NumberOfCodes:               &req.NumberOfCodes,
+		CodeLength:                  &req.CodeLength,
+		Quantity:                    &req.Quantity,
 		StartDatetime:               startDateTime,
 		EndDatetime:                 endDatetime,
-		MinSecondsBeforeEvent:       req.MinSecondsBeforeEvent,
-		MaxSecondsBeforeEvent:       req.MaxSecondsBeforeEvent,
+		MinSecondsBeforeEvent:       &req.MinSecondsBeforeEvent,
+		MaxSecondsBeforeEvent:       &req.MaxSecondsBeforeEvent,
 		EventStartDatetime:          eventStartDatetime,
 		EventEndDatetime:            eventEndDatetime,
 		WeekDay:                     req.WeekDay,
 		DisabledDates:               req.DisabledDates,
+		StartTime:                   &req.StartTime,
+		EndTime:                     &req.EndTime,
 		SalesGroupSet:               salesGroups,
 		BuyerTypeSet:                buyerTypes,
 		ProductSet:                  products,
@@ -400,13 +422,13 @@ func (sm *ServiceManager) PostPromotion(w http.ResponseWriter, r *http.Request) 
 		helpers.WriteJSON(w, http.StatusInternalServerError, err)
 		return
 	}
-	if promotion.CodeType == "generated" {
+	if *promotion.CodeType == "generated" {
 		var promotionalCodes []models.PromotionalCode
-		for i := 0; i < promotion.NumberOfCodes; i++ {
-			generatedCode := helpers.RandStringBytes(promotion.CodeLength)
+		for i := 0; i < *promotion.NumberOfCodes; i++ {
+			generatedCode := helpers.RandStringBytes(*promotion.CodeLength)
 			promotionCode := models.PromotionalCode{
 				Code:        generatedCode,
-				Quantity:    strconv.Itoa(promotion.Quantity),
+				Quantity:    strconv.Itoa(*promotion.Quantity),
 				PromotionId: promotion.PromotionId,
 			}
 			promotionalCodes = append(promotionalCodes, promotionCode)

@@ -39,6 +39,8 @@ type PromotionPost struct {
 	Percentage                  int                   `json:"percentage"`
 	LeftPurchased               int                   `json:"leftPurchased"`
 	RightPaid                   int                   `json:"rightPaid"`
+	StartTime                   string                `json:"startTime"`
+	EndTime                     string                `json:"endTime"`
 	IsPromotionAffiliateEnabled bool                  `json:"isPromotionAffiliateEnabled"`
 	HideAmountAtTicket          bool                  `json:"hideAmountAtTicket"`
 	ShowOriginalAmountAtTicket  bool                  `json:"showOriginalAmountAtTicket"`
@@ -51,8 +53,8 @@ type PromotionPost struct {
 	PromotionalCodeSet          []promotionalCodePost `json:"promotionalCodeSet"`
 	StartDatetime               string                `json:"startDatetime"`
 	EndDatetime                 string                `json:"endDatetime"`
-	EventStartDatetime          string                `json:"eventStartDatetime"`
-	EventEndDatetime            string                `json:"eventEndDatetime"`
+	EventStartDatetime          *string               `json:"eventStartDatetime"`
+	EventEndDatetime            *string               `json:"eventEndDatetime"`
 	MinSecondsBeforeEvent       int                   `json:"minSecondsBeforeEvent"`
 	MaxSecondsBeforeEvent       int                   `json:"maxSecondsBeforeEvent"`
 	WeekDay                     []int                 `json:"weekDay"`
@@ -88,8 +90,10 @@ type PutPromotionGeneral struct {
 type PutPromotionValidities struct {
 	StartDatetime         string   `json:"startDatetime"`
 	EndDatetime           string   `json:"endDatetime"`
-	EventStartDatetime    string   `json:"eventStartDatetime"`
-	EventEndDatetime      string   `json:"eventEndDatetime"`
+	EventStartDatetime    *string  `json:"eventStartDatetime"`
+	EventEndDatetime      *string  `json:"eventEndDatetime"`
+	StartTime             string   `json:"startTime"`
+	EndTime               string   `json:"endTime"`
 	MinSecondsBeforeEvent int      `json:"minSecondsBeforeEvent"`
 	MaxSecondsBeforeEvent int      `json:"maxSecondsBeforeEvent"`
 	WeekDay               []int    `json:"weekDay"`

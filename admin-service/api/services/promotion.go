@@ -189,23 +189,27 @@ func (sm *ServiceManager) PutPromotionAdvancedSettings(w http.ResponseWriter, r 
 		return
 	}
 	sm.db.First(&promotion, promotion_id)
-	var promotionPrices []models.PromotionPrice
-	for _, promotionPrice := range req.PromotionPriceSet {
-		newPromotionPrice := models.PromotionPrice{
-			PromotionId:  promotion_id,
-			BuyerTypeId:  promotionPrice.BuyerTypeID,
-			SalesGroupId: promotionPrice.SalesGroupId,
-			Amount:       promotionPrice.Amount,
-			Percentage:   promotionPrice.Percentage,
+	if len(req.PromotionPriceSet) == 0 {
+		sm.db.Model(&promotion).Association("PromotionPriceSet").Clear()
+	} else {
+		var promotionPrices []models.PromotionPrice
+		for _, promotionPrice := range req.PromotionPriceSet {
+			newPromotionPrice := models.PromotionPrice{
+				PromotionId:  promotion_id,
+				BuyerTypeId:  promotionPrice.BuyerTypeID,
+				SalesGroupId: promotionPrice.SalesGroupId,
+				Amount:       promotionPrice.Amount,
+				Percentage:   promotionPrice.Percentage,
+			}
+			promotionPrices = append(promotionPrices, newPromotionPrice)
 		}
-		promotionPrices = append(promotionPrices, newPromotionPrice)
+		err = sm.db.Create(&promotionPrices).Error
+		if err != nil {
+			helpers.WriteJSON(w, http.StatusInternalServerError, err)
+			return
+		}
+		sm.db.Model(&promotion).Association("PromotionPriceSet").Replace(promotionPrices)
 	}
-	err = sm.db.Create(&promotionPrices).Error
-	if err != nil {
-		helpers.WriteJSON(w, http.StatusInternalServerError, err)
-		return
-	}
-	sm.db.Model(&promotion).Association("PromotionPriceSet").Replace(promotionPrices)
 	helpers.WriteJSON(w, http.StatusOK, promotion)
 }
 

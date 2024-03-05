@@ -91,7 +91,7 @@ func (sm *ServiceManager) PutPromotionGeneral(w http.ResponseWriter, r *http.Req
 		for _, promotionCode := range req.PromotionalCodeSet {
 			promotionCode := models.PromotionalCode{
 				Code:        promotionCode.Code,
-				Quantity:    promotionCode.Quantity,
+				Quantity:    strconv.Itoa(promotionCode.Quantity),
 				PromotionId: promotion_id,
 			}
 			promotionCodes = append(promotionCodes, promotionCode)
@@ -317,7 +317,7 @@ func (sm *ServiceManager) PostValidateCode(w http.ResponseWriter, r *http.Reques
 func (sm *ServiceManager) PostPromotion(w http.ResponseWriter, r *http.Request) {
 	req := &dtoPromotion.PromotionPost{}
 	if err := json.NewDecoder(r.Body).Decode(&req); err != nil {
-		helpers.WriteJSON(w, http.StatusBadRequest, map[string]string{"error": "Invalid request"})
+		helpers.WriteJSON(w, http.StatusBadRequest, err)
 		return
 	}
 
@@ -426,33 +426,35 @@ func (sm *ServiceManager) PostPromotion(w http.ResponseWriter, r *http.Request) 
 		helpers.WriteJSON(w, http.StatusInternalServerError, err)
 		return
 	}
-	if *promotion.CodeType == "generated" {
-		var promotionalCodes []models.PromotionalCode
-		for i := 0; i < *promotion.NumberOfCodes; i++ {
-			generatedCode := helpers.RandStringBytes(*promotion.CodeLength)
-			promotionCode := models.PromotionalCode{
-				Code:        generatedCode,
-				Quantity:    strconv.Itoa(*promotion.Quantity),
-				PromotionId: promotion.PromotionId,
+	if promotion.PromotionType == "promotional_code" {
+		if *promotion.CodeType == "generated" {
+			var promotionalCodes []models.PromotionalCode
+			for i := 0; i < *promotion.NumberOfCodes; i++ {
+				generatedCode := helpers.RandStringBytes(*promotion.CodeLength)
+				promotionCode := models.PromotionalCode{
+					Code:        generatedCode,
+					Quantity:    strconv.Itoa(*promotion.Quantity),
+					PromotionId: promotion.PromotionId,
+				}
+				promotionalCodes = append(promotionalCodes, promotionCode)
 			}
-			promotionalCodes = append(promotionalCodes, promotionCode)
-		}
-		err = sm.db.Create(&promotionalCodes).Error
-		if err != nil {
-			helpers.WriteJSON(w, http.StatusInternalServerError, err)
-			return
-		}
-	} else {
-		for _, promotionCode := range req.PromotionalCodeSet {
-			promotionCode := models.PromotionalCode{
-				Code:        promotionCode.Code,
-				Quantity:    promotionCode.Quantity,
-				PromotionId: promotion.PromotionId,
-			}
-			err = sm.db.Create(&promotionCode).Error
+			err = sm.db.Create(&promotionalCodes).Error
 			if err != nil {
 				helpers.WriteJSON(w, http.StatusInternalServerError, err)
 				return
+			}
+		} else {
+			for _, promotionCode := range req.PromotionalCodeSet {
+				promotionCode := models.PromotionalCode{
+					Code:        promotionCode.Code,
+					Quantity:    strconv.Itoa(promotionCode.Quantity),
+					PromotionId: promotion.PromotionId,
+				}
+				err = sm.db.Create(&promotionCode).Error
+				if err != nil {
+					helpers.WriteJSON(w, http.StatusInternalServerError, err)
+					return
+				}
 			}
 		}
 	}

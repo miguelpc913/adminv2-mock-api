@@ -19,7 +19,7 @@ type buyerTypePost struct {
 
 type promotionalCodePost struct {
 	Code     string `json:"code"`
-	Quantity string `json:"quantity"`
+	Quantity int    `json:"quantity"`
 }
 
 type promotionPrice struct {

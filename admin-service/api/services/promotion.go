@@ -77,32 +77,34 @@ func (sm *ServiceManager) PutPromotionGeneral(w http.ResponseWriter, r *http.Req
 		helpers.WriteJSON(w, http.StatusNotFound, map[string]string{"error": "There is no promotion with that id"})
 		return
 	}
-	if *promotion.CodeType == "generated" {
-		for i := 0; i < req.NumberOfCodes; i++ {
-			generatedCode := helpers.RandStringBytes(*promotion.CodeLength)
-			promotionCode := models.PromotionalCode{
-				Code:        generatedCode,
-				Quantity:    strconv.Itoa(*promotion.Quantity),
-				PromotionId: promotion.PromotionId,
+	if promotion.PromotionType == "promotional_code" {
+		if *promotion.CodeType == "generated" {
+			for i := 0; i < req.NumberOfCodes; i++ {
+				generatedCode := helpers.RandStringBytes(*promotion.CodeLength)
+				promotionCode := models.PromotionalCode{
+					Code:        generatedCode,
+					Quantity:    strconv.Itoa(*promotion.Quantity),
+					PromotionId: promotion.PromotionId,
+				}
+				promotionCodes = append(promotionCodes, promotionCode)
 			}
-			promotionCodes = append(promotionCodes, promotionCode)
-		}
-	} else {
-		for _, promotionCode := range req.PromotionalCodeSet {
-			promotionCode := models.PromotionalCode{
-				Code:        promotionCode.Code,
-				Quantity:    strconv.Itoa(promotionCode.Quantity),
-				PromotionId: promotion_id,
+		} else {
+			for _, promotionCode := range req.PromotionalCodeSet {
+				promotionCode := models.PromotionalCode{
+					Code:        promotionCode.Code,
+					Quantity:    strconv.Itoa(promotionCode.Quantity),
+					PromotionId: promotion_id,
+				}
+				promotionCodes = append(promotionCodes, promotionCode)
 			}
-			promotionCodes = append(promotionCodes, promotionCode)
 		}
+		err = sm.db.Create(&promotionCodes).Error
+		if err != nil {
+			helpers.WriteJSON(w, http.StatusInternalServerError, err)
+			return
+		}
+		sm.db.Model(&promotion).Association("PromotionalCodeSet").Replace(promotionCodes)
 	}
-	err = sm.db.Create(&promotionCodes).Error
-	if err != nil {
-		helpers.WriteJSON(w, http.StatusInternalServerError, err)
-		return
-	}
-	sm.db.Model(&promotion).Association("PromotionalCodeSet").Replace(promotionCodes)
 	err = sm.db.Model(&promotion).Where("promotion_id = ?", promotion_id).Select("Amount", "Percentage", "LeftPurchased", "RightPaid", "IsPromotionAffiliateEnabled", "HideAmountAtTicket", "ShowOriginalAmountAtTicket", "IsGrouped", "RedeemType", "CodeType", "NumberOfCodes", "CodeLength", "Quantity").Updates(models.Promotion{Amount: &req.Amount, Percentage: &req.Percentage, LeftPurchased: &req.LeftPurchased, RightPaid: &req.RightPaid, IsPromotionAffiliateEnabled: &req.IsPromotionAffiliateEnabled, HideAmountAtTicket: req.HideAmountAtTicket, ShowOriginalAmountAtTicket: req.ShowOriginalAmountAtTicket, IsGrouped: req.IsGrouped, RedeemType: &req.RedeemType, CodeType: &req.CodeType, NumberOfCodes: &req.NumberOfCodes, CodeLength: &req.CodeLength, Quantity: &req.Quantity}).Error
 	if err != nil {
 		helpers.WriteJSON(w, http.StatusBadRequest, map[string]string{"error": "Couldn't update"})

@@ -83,7 +83,7 @@ func (sm *ServiceManager) PutPromotionGeneral(w http.ResponseWriter, r *http.Req
 				generatedCode := helpers.RandStringBytes(*promotion.CodeLength)
 				promotionCode := models.PromotionalCode{
 					Code:        generatedCode,
-					Quantity:    strconv.Itoa(*promotion.Quantity),
+					Quantity:    *promotion.Quantity,
 					PromotionId: promotion.PromotionId,
 				}
 				promotionCodes = append(promotionCodes, promotionCode)
@@ -92,7 +92,7 @@ func (sm *ServiceManager) PutPromotionGeneral(w http.ResponseWriter, r *http.Req
 			for _, promotionCode := range req.PromotionalCodeSet {
 				promotionCode := models.PromotionalCode{
 					Code:        promotionCode.Code,
-					Quantity:    strconv.Itoa(promotionCode.Quantity),
+					Quantity:    promotionCode.Quantity,
 					PromotionId: promotion_id,
 				}
 				promotionCodes = append(promotionCodes, promotionCode)
@@ -428,14 +428,14 @@ func (sm *ServiceManager) PostPromotion(w http.ResponseWriter, r *http.Request) 
 		helpers.WriteJSON(w, http.StatusInternalServerError, err)
 		return
 	}
-	if promotion.PromotionType == "promotional_code" {
-		if *promotion.CodeType == "generated" {
+	if req.PromotionType == "promotional_code" {
+		if req.CodeType == "generated" {
 			var promotionalCodes []models.PromotionalCode
 			for i := 0; i < *promotion.NumberOfCodes; i++ {
 				generatedCode := helpers.RandStringBytes(*promotion.CodeLength)
 				promotionCode := models.PromotionalCode{
 					Code:        generatedCode,
-					Quantity:    strconv.Itoa(*promotion.Quantity),
+					Quantity:    *promotion.Quantity,
 					PromotionId: promotion.PromotionId,
 				}
 				promotionalCodes = append(promotionalCodes, promotionCode)
@@ -449,7 +449,7 @@ func (sm *ServiceManager) PostPromotion(w http.ResponseWriter, r *http.Request) 
 			for _, promotionCode := range req.PromotionalCodeSet {
 				promotionCode := models.PromotionalCode{
 					Code:        promotionCode.Code,
-					Quantity:    strconv.Itoa(promotionCode.Quantity),
+					Quantity:    promotionCode.Quantity,
 					PromotionId: promotion.PromotionId,
 				}
 				err = sm.db.Create(&promotionCode).Error

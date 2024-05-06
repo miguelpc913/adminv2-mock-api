@@ -1,4 +1,9 @@
 # adminv2-mock-api
+![Static Badge](https://img.shields.io/badge/terraform-1?style=flat&logo=terraform)
+![Static Badge](https://img.shields.io/badge/Go-1?style=flat&logo=go&labelColor=white)
+![Static Badge](https://img.shields.io/badge/docker-1?logo=docker)
+
+
 Mock Admin v2 API implementation for frontend testing purposes
 ## Run on localhost
 
@@ -15,3 +20,4 @@ Mock Admin v2 API implementation for frontend testing purposes
 
 - Docker
 - Docker compose
+

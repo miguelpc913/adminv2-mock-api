@@ -47,8 +47,8 @@ module "db" {
 
   kms_key_id = var.key_mag
 
-  performance_insights_enabled          = true
-  performance_insights_retention_period = 7
+  # performance_insights_enabled          = true
+  # performance_insights_retention_period = 7
 
 
   parameters = [

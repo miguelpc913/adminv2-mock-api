@@ -1,5 +1,4 @@
 {
-    "taskDefinitionArn": "arn:aws:ecs:eu-west-1:227320912480:task-definition/admin-mock-api:2",
     "containerDefinitions": [
         {
             "name": "adminMockApi",
@@ -19,21 +18,6 @@
             "volumesFrom": [],
             "systemControls": []
         }
-    ],
-    "family": "admin-mock-api",
-    "revision": 2,
-    "volumes": [],
-    "status": "ACTIVE",
-    "requiresAttributes": [
-        {
-            "name": "com.amazonaws.ecs.capability.ecr-auth"
-        }
-    ],
-    "placementConstraints": [],
-    "compatibilities": [
-        "EXTERNAL",
-        "EC2"
-    ],
-    "registeredAt": "2024-05-06T13:09:08.898000+02:00",
-    "registeredBy": "arn:aws:iam::227320912480:user/jcastrillo"
+    ]
+
 }

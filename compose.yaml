@@ -1,7 +1,7 @@
 version: "3.8"
 services:
-  admin-service:
-    container_name: admin-service
+  admin-app:
+    container_name: adminContainer
     build:
       context: .
       dockerfile: Dockerfile
@@ -25,6 +25,8 @@ services:
     image: mysql
     ports:
       - "3306"
+    volumes:
+      - mysql_data:/var/lib/mysql
     environment:
       MYSQL_ROOT_PASSWORD: root
       MYSQL_DATABASE: admin_dev

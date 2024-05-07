@@ -8,6 +8,7 @@ import (
 )
 
 func main() {
+
 	database, _ := db.InitDB()
 	r := controllers.Init(database)
 	http.ListenAndServe(":8080", r)

@@ -6,6 +6,10 @@ WORKDIR /app
 RUN go install github.com/cosmtrek/air@latest
 
 COPY admin/ ./
-RUN go mod download
 
-CMD ["air", "-c", ".air.toml"]
+RUN go mod download
+# refresh go.sum hash
+RUN go mod tidy  
+
+CMD ["air"]
+# CMD ["air", "-c", ".air.toml"]

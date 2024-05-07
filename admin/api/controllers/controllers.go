@@ -7,6 +7,8 @@ import (
 	AdminMiddleware "github.com/tiqueteo/adminv2-mock-api/api/middleware"
 	"github.com/tiqueteo/adminv2-mock-api/api/services"
 	"gorm.io/gorm"
+	"fmt"
+	"net/http"
 )
 
 func Init(db *gorm.DB) *chi.Mux {
@@ -18,9 +20,13 @@ func Init(db *gorm.DB) *chi.Mux {
 		AllowedMethods:   []string{"GET", "POST", "PUT", "DELETE", "OPTIONS"},
 		AllowedHeaders:   []string{"Accept", "Authorization", "Content-Type", "X-CSRF-Token"},
 		ExposedHeaders:   []string{"Link"},
-		AllowCredentials: true, // Set to true if you want to allow credentials
-		MaxAge:           300,  // Maximum value not ignored by any of the major browsers
+		AllowCredentials: true,
+		MaxAge:           300,
 	}))
+
+	r.HandleFunc("/health", func(w http.ResponseWriter, r *http.Request) {
+        fmt.Fprint(w, "Hello, Go!")
+    })
 
 	r.Post("/login", sm.Login)
 	r.Route("/products", func(r chi.Router) {

@@ -38,10 +38,6 @@ output "db_instance_resource_id" {
   value       = module.db.db_instance_resource_id
 }
 
-output "db_instance_status" {
-  description = "The RDS instance status"
-  value       = module.db.db_instance_status
-}
 
 output "db_instance_username" {
   description = "The master username for the database"

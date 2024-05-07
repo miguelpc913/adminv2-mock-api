@@ -12,7 +12,7 @@ module "db" {
   username = "admin"
   # password = var.db_pass
   manage_master_user_password = true
-  port     = "3306"
+  port                        = "3306"
 
   iam_database_authentication_enabled = true
 

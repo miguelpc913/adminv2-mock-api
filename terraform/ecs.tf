@@ -1,22 +1,32 @@
 
-# resource "random_string" "suffix" {
-#   length  = 8
-#   special = false
-#   lower   = true
-#   upper   = false
-# }
+
+resource "aws_lb_target_group" "adminv2_lb" {
+  name        = "admin-mock-api"
+  target_type = "instance"
+  port        = 8080
+  protocol    = "HTTP"
+  vpc_id      = data.aws_vpc.dev_vpc.id
+  health_check {
+    healthy_threshold   = var.health_check["healthy_threshold"]
+    interval            = var.health_check["interval"]
+    unhealthy_threshold = var.health_check["unhealthy_threshold"]
+    timeout             = var.health_check["timeout"]
+    path                = var.health_check["path"]
+    port                = var.health_check["port"]
+  }
+}
 
 
 resource "aws_ecs_task_definition" "task_keycloak" {
   family = "admin-mock-api"
   container_definitions = jsonencode([
     {
-      name      = var.task_name
+      name           = var.task_name
       container_name = var.task_name
-      image     = var.ecr_image
-      cpu       = 1
-      memory    = 1024
-      essential = true
+      image          = var.ecr_image
+      cpu            = 1
+      memory         = 1024
+      essential      = true
       portMappings = [
         {
           containerPort = 8080
@@ -25,7 +35,40 @@ resource "aws_ecs_task_definition" "task_keycloak" {
       ]
     }
   ])
-
 }
 
 
+resource "aws_ecs_service" "adminmockapi" {
+  name                = "admin-mock-api"
+  cluster             = data.aws_ecs_cluster.ecs-qa.id
+  launch_type         = "EC2"
+  task_definition     = aws_ecs_task_definition.task_keycloak.arn
+  desired_count       = 1
+  iam_role            = data.aws_iam_role.ecs_role.arn
+  scheduling_strategy = "REPLICA"
+
+  ordered_placement_strategy {
+    type  = "spread"
+    field = "instanceId"
+  }
+
+  deployment_circuit_breaker {
+    enable   = true
+    rollback = true
+  }
+
+  load_balancer {
+    target_group_arn = aws_lb_target_group.adminv2_lb.arn
+    container_name   = ""
+    container_port   = 8080
+  }
+
+  placement_constraints {
+    type       = "memberOf"
+    expression = "attribute:ecs.availability-zone in [eu-west-1a, eu-west-1b]"
+  }
+  depends_on = [
+    data.aws_iam_role.ecs_role,
+    aws_lb_target_group.adminv2_lb
+  ]
+}

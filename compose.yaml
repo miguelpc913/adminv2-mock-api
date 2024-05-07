@@ -3,7 +3,8 @@ services:
   admin-service:
     container_name: admin-service
     build:
-      context: admin
+      context: .
+      dockerfile: Dockerfile
     ports:
       - "8080:8080"
     environment:
@@ -14,16 +15,16 @@ services:
       - MYSQL_PASSWORD=admin
       - MYSQL_DATABASE=admin_dev
     volumes:
-      - ../admin-service:/go/src/app
+      - admin_data:/app
     depends_on:
       mysql-db:
         condition: service_healthy
 
   mysql-db:
     container_name: adminDb
-    image: mysql:5.7
+    image: mysql
     ports:
-      - "3310:3306"
+      - "3306"
     environment:
       MYSQL_ROOT_PASSWORD: root
       MYSQL_DATABASE: admin_dev
@@ -37,3 +38,4 @@ services:
 
 volumes:
   mysql_data:
+  admin_data:

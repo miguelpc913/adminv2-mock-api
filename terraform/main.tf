@@ -4,7 +4,7 @@ terraform {
   ### remote state location
   ####################
   backend "s3" {
-    bucket = "remotestate-vcetfh20"
+    bucket         = "remotestate-vcetfh20"
     key            = "admin-mock-api/state/terraform.tfstate"
     region         = "eu-west-1"
     encrypt        = true

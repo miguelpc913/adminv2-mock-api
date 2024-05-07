@@ -9,7 +9,7 @@ env:
   ECS_SERVICE: admin-mock-api-service             
   CONTAINER_NAME: admin-mock-api
   ECS_CLUSTER: qa
-  ECS_TASK_DEFINITION: admin/task-definition.json
+  ECS_TASK_DEFINITION: task-definition.json
 
 permissions:
   id-token: write # This is required for requesting the JWT

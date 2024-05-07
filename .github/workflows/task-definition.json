@@ -2,6 +2,7 @@
     "containerDefinitions": [
         {
             "name": "admin-mock-api",
+            "container_name": "admin-mock-api",
             "image": "227320912480.dkr.ecr.eu-west-1.amazonaws.com/admin-mock-api:develop",
             "cpu": 1,
             "memory": 1024,

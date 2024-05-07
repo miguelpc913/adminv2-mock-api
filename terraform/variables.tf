@@ -22,11 +22,6 @@ variable "db_pass" {
 
 # task definition ECS
 
-variable "task_name" {
-  type        = string
-  description = "task name"
-}
-
 variable "ecr_image" {
   type        = string
   description = "repository image"

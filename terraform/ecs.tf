@@ -16,33 +16,11 @@ resource "aws_lb_target_group" "adminv2_lb" {
   }
 }
 
-
-resource "aws_ecs_task_definition" "task_keycloak" {
-  family = "admin-mock-api"
-  container_definitions = jsonencode([
-    {
-      name           = var.task_name
-      container_name = var.task_name
-      image          = var.ecr_image
-      cpu            = 1
-      memory         = 1024
-      essential      = true
-      portMappings = [
-        {
-          containerPort = 8080
-          hostPort      = 8080
-        }
-      ]
-    }
-  ])
-}
-
-
 resource "aws_ecs_service" "adminmockapi" {
   name                = "admin-mock-api"
   cluster             = data.aws_ecs_cluster.ecs-qa.id
   launch_type         = "EC2"
-  task_definition     = aws_ecs_task_definition.task_keycloak.arn
+  task_definition     = data.aws_ecs_task_definition.admin_task.arn 
   desired_count       = 1
   iam_role            = data.aws_iam_role.ecs_role.arn
   scheduling_strategy = "REPLICA"
@@ -59,7 +37,7 @@ resource "aws_ecs_service" "adminmockapi" {
 
   load_balancer {
     target_group_arn = aws_lb_target_group.adminv2_lb.arn
-    container_name   = ""
+    container_name   = "admin-mock-api"
     container_port   = 8080
   }
 

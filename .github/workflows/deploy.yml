@@ -3,7 +3,9 @@ name: Deploy to Amazon ECS
 on:
   push:
     branches: [ "infra" ]
-
+    paths:
+      - admin/**
+    
 env:
   AWS_REGION: eu-west-1                   
   ECS_SERVICE: admin-mock-api      

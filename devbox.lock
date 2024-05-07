@@ -48,6 +48,71 @@
           "store_path": "/nix/store/9kriq85qac7phcxgpdqbqr25vlr61ifw-go-1.22.2"
         }
       }
+    },
+    "mysql80@latest": {
+      "last_modified": "2024-04-19T17:36:04-04:00",
+      "plugin_version": "0.0.3",
+      "resolved": "github:NixOS/nixpkgs/92d295f588631b0db2da509f381b4fb1e74173c5#mysql80",
+      "source": "devbox-search",
+      "version": "8.0.36",
+      "systems": {
+        "aarch64-darwin": {
+          "outputs": [
+            {
+              "name": "out",
+              "path": "/nix/store/nvj6gcqypsi1f4hf943wk9ic7qy9d2g3-mysql-8.0.36",
+              "default": true
+            },
+            {
+              "name": "static",
+              "path": "/nix/store/w7k997dry5dvcswfrdp6niw226f7dx7p-mysql-8.0.36-static"
+            }
+          ],
+          "store_path": "/nix/store/nvj6gcqypsi1f4hf943wk9ic7qy9d2g3-mysql-8.0.36"
+        },
+        "aarch64-linux": {
+          "outputs": [
+            {
+              "name": "out",
+              "path": "/nix/store/zhsygsc6v5x7ic53x5bmim9kccczdkj7-mysql-8.0.36",
+              "default": true
+            },
+            {
+              "name": "static",
+              "path": "/nix/store/lb1jlm0a7hjhkxlrc8gc9wvclfqqpzp4-mysql-8.0.36-static"
+            }
+          ],
+          "store_path": "/nix/store/zhsygsc6v5x7ic53x5bmim9kccczdkj7-mysql-8.0.36"
+        },
+        "x86_64-darwin": {
+          "outputs": [
+            {
+              "name": "out",
+              "path": "/nix/store/6niy0plf7ybmv7fy09q14wqsyl0bi5hc-mysql-8.0.36",
+              "default": true
+            },
+            {
+              "name": "static",
+              "path": "/nix/store/bmj06z67hkd3sjn9a0wb0ykb9nqbx5rw-mysql-8.0.36-static"
+            }
+          ],
+          "store_path": "/nix/store/6niy0plf7ybmv7fy09q14wqsyl0bi5hc-mysql-8.0.36"
+        },
+        "x86_64-linux": {
+          "outputs": [
+            {
+              "name": "out",
+              "path": "/nix/store/n3j47x19bvnfc4a6ia2i84cbky79bd08-mysql-8.0.36",
+              "default": true
+            },
+            {
+              "name": "static",
+              "path": "/nix/store/czcci2f8l7wp8f59h53kcbqbnq850782-mysql-8.0.36-static"
+            }
+          ],
+          "store_path": "/nix/store/n3j47x19bvnfc4a6ia2i84cbky79bd08-mysql-8.0.36"
+        }
+      }
     }
   }
 }

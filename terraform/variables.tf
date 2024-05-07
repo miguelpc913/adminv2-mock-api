@@ -32,7 +32,7 @@ variable "health_check" {
   default = {
     "timeout"             = "5"
     "interval"            = "20"
-    "path"                = "/admin/manage/health"
+    "path"                = "/health"
     "port"                = "8080"
     "unhealthy_threshold" = "2"
     "healthy_threshold"   = "4"

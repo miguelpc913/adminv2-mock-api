@@ -6,7 +6,7 @@ on:
 
 env:
   AWS_REGION: eu-west-1                   
-  ECS_SERVICE: admin-mock-api-service             
+  ECS_SERVICE: admin-mock-api      
   CONTAINER_NAME: admin-mock-api
   ECS_CLUSTER: qa
   ECS_TASK_DEFINITION: .github/workflows/task-definition.json

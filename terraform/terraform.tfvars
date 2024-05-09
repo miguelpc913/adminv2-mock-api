@@ -1,5 +1,5 @@
 aws_region = "eu-west-1"
 db_name    = "adminMockApi"
 key_mag    = "arn:aws:kms:eu-west-1:227320912480:key/bbbe7f09-bd23-4d65-9e69-e17ac3ed68f3"
-db_pass    = "SUPERsecret"
+db_pass    = "*NRH(o}i3dl1_r1ZnB%s25Q:(gQ83by-"
 ecr_image  = "227320912480.dkr.ecr.eu-west-1.amazonaws.com/admin-mock-api:develop"

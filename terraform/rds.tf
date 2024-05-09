@@ -10,11 +10,11 @@ module "db" {
 
   db_name  = var.db_name
   username = "admin"
-  # password = var.db_pass
-  manage_master_user_password = true
-  port                        = "3306"
+  password = var.db_pass
+  manage_master_user_password = false
+  port = "3306"
 
-  iam_database_authentication_enabled = true
+  iam_database_authentication_enabled = false
 
   vpc_security_group_ids = ["sg-90253ff2"]
 

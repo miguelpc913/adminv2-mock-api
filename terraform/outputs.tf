@@ -28,11 +28,6 @@ output "db_instance_hosted_zone_id" {
   value       = module.db.db_instance_hosted_zone_id
 }
 
-output "db_instance_identifier" {
-  description = "The RDS instance identifier"
-  value       = module.db.db_instance_identifier
-}
-
 output "db_instance_resource_id" {
   description = "The RDS Resource ID of this instance"
   value       = module.db.db_instance_resource_id

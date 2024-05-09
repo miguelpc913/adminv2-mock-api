@@ -1,0 +1,25 @@
+version: '3'
+
+env:
+  HOLA: Hey, there!
+
+tasks:
+  db:
+    preconditions:
+      - test -f devbox.json
+      - test -f devbox.lock
+    cmds:
+      - mysqld &
+      - printf "%b" "\e[1;34mStarting up DB please wait....\e[0m"
+      - sleep 5
+      - mysql -u root -e "create database admin_dev; CREATE USER admin@localhost IDENTIFIED BY 'admin'; GRANT ALL PRIVILEGES ON admin_dev.* TO admin@localhost";
+      - echo "DB and admin user created Successfully"
+  air:
+    dir: 'admin'
+    preconditions:
+      - test -f go.mod
+      - test -f main.go
+    cmds:
+      - go mod download 
+      - go mod tidy 
+      - air

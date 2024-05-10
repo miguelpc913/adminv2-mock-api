@@ -1,16 +1,13 @@
 {
   "$schema": "https://raw.githubusercontent.com/jetify-com/devbox/0.10.5/.schema/devbox.schema.json",
-  "packages": [
-    "go@1.22",
-    "mysql80@latest",
-    "go-task@latest",
-    "air@latest"
-  ],
+  "packages": ["go@1.22", "mysql80@latest", "go-task@latest", "air@latest"],
   "env": {
     "MYSQL_ROOT_PASSWORD": "root",
-    "MYSQL_DATABASE":      "admin_dev",
-    "MYSQL_USER":          "admin",
-    "MYSQL_PASSWORD":      "admin"
+    "MYSQL_DATABASE": "admin_dev",
+    "MYSQL_USER": "admin",
+    "MYSQL_PASSWORD": "admin",
+    "MYSQL_PORT": "3306",
+    "MYSQL_HOST": "localhost"
   },
   "shell": {
     "init_hook": [
@@ -18,11 +15,10 @@
       "echo 'Welcome to devbox!' > /dev/null"
     ],
     "scripts": {
-      "start_db":  "mysqld &",
-      "stop_db":   "mysqladmin -u root shutdown",
-      "test": [
-        "echo \"Error: no test specified\" && exit 1"
-      ]
+      "start_db": "mysqld &",
+      "stop_db": "mysqladmin -u root shutdown",
+      "login_db": "mysql --port=3306 --user=root",
+      "test": ["echo \"Error: no test specified\" && exit 1"]
     }
   }
 }

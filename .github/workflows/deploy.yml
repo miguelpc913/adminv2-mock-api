@@ -60,10 +60,16 @@ jobs:
         image: ${{ steps.build-image.outputs.image }}
         environment-variables: |
             ENVIRONMENT=dev
+            MYSQL_ROOT_PASSWORD=root
+            MYSQL_DATABASE=admin_dev
+            MYSQL_USER=admin
+            MYSQL_PASSWORD=admin
+            MYSQL_PORT=3306
+            MYSQL_HOST=adminmockapi-db.ccwi8akjz0qr.eu-west-1.rds.amazonaws.com
         docker-labels: |
             SERVICE=api
             VERSION=1.0
-
+            
     - name: Deploy Amazon ECS task definition
       uses: aws-actions/amazon-ecs-deploy-task-definition@v1
       with:

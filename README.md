@@ -26,10 +26,25 @@ docker compose stop
 - Docker compose
 - [Devbox](https://www.jetify.com/devbox/docs/quickstart/)
 
-## ▶️ Run it on Devbox:
+## ▶️ 📦 Run it on Devbox:
 
+1. install [Devbox](https://www.jetify.com/devbox/docs/quickstart/) on your computer.
+2. pull the project.
+3. issue the following command in order:
+
+### START app:
 ```
 devbox init
 devbox shell
-air
+task db
+task air
+devbox run stop_db
 ```
+### STOP app:
+```
+devbox run stop_db
+```
+
+## Requirements to launch:
+
+- [Devbox](https://www.jetify.com/devbox/docs/quickstart/)

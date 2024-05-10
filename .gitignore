@@ -2,4 +2,4 @@ tmp
 .terraform
 .devbox
 .admin
-devbox.lock
+*.lock

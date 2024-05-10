@@ -2,6 +2,7 @@
 ![https://www.terraform.io/](https://img.shields.io/badge/terraform-1?style=flat&logo=terraform)
 ![Static Badge](https://img.shields.io/badge/Go-1?style=flat&logo=go&labelColor=white)
 ![Static Badge](https://img.shields.io/badge/docker-1?logo=docker)
+[![Deploy to Amazon ECS](https://github.com/tiqueteo/adminv2-mock-api/actions/workflows/deploy.yml/badge.svg?branch=infra)](https://github.com/tiqueteo/adminv2-mock-api/actions/workflows/deploy.yml)
 
 
 Mock Admin v2 API implementation for frontend testing purposes.

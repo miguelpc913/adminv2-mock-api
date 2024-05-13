@@ -13,11 +13,8 @@
 4. [📄 Notes](#notes)
 
 [![Terraform](https://img.shields.io/badge/Terraform-1s?style=flat&logo=terraform&labelColor=white&color=back)](https://www.terraform.io/)
-
 [![Go version](https://img.shields.io/badge/Go%201.22-1s?style=flat&logo=go&labelColor=white)](https://tip.golang.org/doc/go1.22)
-
 [![Static Badge](https://img.shields.io/badge/Docker-1s?style=flat&logo=Docker&labelColor=white&color=blue)](https://www.docker.com/)
-
 [![Deploy to Amazon ECS](https://github.com/tiqueteo/adminv2-mock-api/actions/workflows/deploy.yml/badge.svg?branch=infra)](https://github.com/tiqueteo/adminv2-mock-api/actions/workflows/deploy.yml)
 
 

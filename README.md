@@ -7,8 +7,8 @@
 </p>
 
 # Table of Contents
-1. [🐋 Docker Compose](#run-it-in-docker-compose)
-2. [📦 Run it on Devbox](#run-it-on-devbox)
+1. [🐋 Docker Compose](#run-it-with-docker-compose)
+2. [📦 Run it on Devbox](#run-it-with-devbox)
 3. [🧪 Pipeline](#pipeline)
 4. [📄 Notes](#notes)
 
@@ -22,7 +22,7 @@ Mock Admin v2 API implementation for frontend testing purposes.
 
 The following project is developed on Go 1.22 the localhost run are set by docker compose and [devbox](https://www.jetify.com/devbox/docs/quickstart/).
 
-## Run it by Docker Compose
+## Run it with Docker Compose
 
 ### START
 
@@ -40,7 +40,7 @@ docker compose stop
 - Docker compose
 - [Devbox](https://www.jetify.com/devbox/docs/quickstart/)
 
-## 📦 Run it on Devbox:
+## Run it with Devbox:
 
 1. install [Devbox](https://www.jetify.com/devbox/docs/quickstart/) on your computer.
 2. pull the project.
@@ -52,8 +52,14 @@ devbox init
 devbox shell
 task db
 task air
-devbox run stop_db
 ```
+
+- **devbox init**: initialize devbox tool
+- **devbox shell**: go into devbox sandbox
+- **task db**: start database by using [Task](https://taskfile.dev/)
+- **task air**: start Air by using [Task](https://taskfile.dev/)
+
+
 ### STOP app:
 ```
 devbox run stop_db
@@ -65,7 +71,6 @@ devbox run stop_db
 
 
 ## Pipeline
-
 
 ![](/.github/media/workflow.png)
 

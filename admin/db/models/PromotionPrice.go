@@ -14,7 +14,7 @@ type PromotionPrice struct {
 	BuyerType        BuyerType      `json:"-"`
 	SalesGroupId     int            `json:"salesGroupId"`
 	SalesGroup       SalesGroup     `json:"-"`
-	Percentage       int            `json:"percentage"`
+	Percentage       float64        `json:"percentage"`
 	Amount           int            `json:"amount"`
 	CreatedAt        time.Time      `json:"-"`
 	UpdatedAt        time.Time      `json:"-"`

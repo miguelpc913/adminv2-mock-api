@@ -1,4 +1,4 @@
-package dbhelpers
+package modelHelpers
 
 import (
 	"database/sql/driver"

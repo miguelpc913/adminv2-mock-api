@@ -23,10 +23,10 @@ type promotionalCodePost struct {
 }
 
 type promotionPrice struct {
-	SalesGroupId int `json:"salesGroupId"`
-	BuyerTypeID  int `json:"buyerTypeId"`
-	Amount       int `json:"amount"`
-	Percentage   int `json:"percentage"`
+	SalesGroupId int     `json:"salesGroupId"`
+	BuyerTypeID  int     `json:"buyerTypeId"`
+	Amount       int     `json:"amount"`
+	Percentage   float64 `json:"percentage"`
 }
 
 type PromotionPost struct {

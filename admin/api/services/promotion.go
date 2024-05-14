@@ -379,7 +379,7 @@ func (sm *ServiceManager) PostPromotion(w http.ResponseWriter, r *http.Request) 
 	for _, productData := range req.ProductSet {
 		product := models.Product{}
 		if err := sm.db.First(&product, productData.ProductId).Error; err != nil {
-			helpers.WriteJSON(w, http.StatusBadRequest, map[string]string{"error": "buyerTypes are not valid"})
+			helpers.WriteJSON(w, http.StatusBadRequest, map[string]string{"error": "productss are not valid"})
 			return
 		}
 		products = append(products, product)

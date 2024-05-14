@@ -2,45 +2,18 @@ package db
 
 import (
 	"fmt"
-	"os"
 
-	"github.com/tiqueteo/adminv2-mock-api/db/models"
-	"gorm.io/driver/mysql"
+	dbHelpers "github.com/tiqueteo/adminv2-mock-api/db/utils"
 	"gorm.io/gorm"
 )
 
 func InitDB() (db *gorm.DB, err error) {
-	var userDb = os.Getenv("MYSQL_USER")
-	var pass = os.Getenv("MYSQL_PASSWORD")
-	var url = os.Getenv("MYSQL_HOST") + ":" + os.Getenv("MYSQL_PORT")
-	var dbname = os.Getenv("MYSQL_DATABASE")
-	var dsn = fmt.Sprintf(
-		"%s:%s@tcp(%s)/%s?charset=utf8mb4&parseTime=True&loc=Local",
-		userDb,
-		pass,
-		url,
-		dbname,
-	)
-	db, err = gorm.Open(mysql.Open(dsn), &gorm.Config{})
-
+	db, err = dbHelpers.ConnectDb()
 	if err != nil {
 		return nil, err
 	}
-
-	db.AutoMigrate(&models.BuyerType{})
-	db.AutoMigrate(&models.SalesGroup{})
-	db.AutoMigrate(&models.Product{})
-	db.AutoMigrate(&models.ProductTag{})
-	db.AutoMigrate(&models.SalesGroupHtml{})
-	db.AutoMigrate(&models.Verifier{})
-	db.AutoMigrate(&models.PaymentMethod{})
-	db.AutoMigrate(&models.Venue{})
-	db.AutoMigrate(&models.ProductInfo{})
-	db.AutoMigrate(&models.ProductInfoType{})
-	db.AutoMigrate(&models.RecommendationRule{})
-	db.AutoMigrate(&models.Promotion{})
-	db.AutoMigrate(&models.PromotionPrice{})
-	db.AutoMigrate(&models.PromotionalCode{})
+	dbHelpers.MigrateModels(db)
+	dbHelpers.SeedEntities(db)
 	fmt.Println("Successfully connected!", db)
 	return db, nil
 }

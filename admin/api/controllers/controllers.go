@@ -16,7 +16,7 @@ func Init(db *gorm.DB) *chi.Mux {
 	r.Use(middleware.Logger)
 	sm := services.NewServiceManager(db)
 	r.Use(cors.Handler(cors.Options{
-		AllowedOrigins:   []string{"http://localhost:8000"},
+		AllowedOrigins:   []string{"http://localhost:8000", "https://admin-micro-qa.clorian.com"},
 		AllowedMethods:   []string{"GET", "POST", "PUT", "DELETE", "OPTIONS"},
 		AllowedHeaders:   []string{"Accept", "Authorization", "Content-Type", "X-CSRF-Token"},
 		ExposedHeaders:   []string{"Link"},
@@ -88,6 +88,31 @@ func Init(db *gorm.DB) *chi.Mux {
 		r.Put("/{id}/salesGroups", sm.PutPromotionSalesGroups)
 		r.Put("/{id}/buyerTypes", sm.PutPromotionBuyerTypes)
 		r.Put("/{id}/products", sm.PutPromotionProducts)
+	})
+	r.Route("/affiliateItems", func(r chi.Router) {
+		r.Use(AdminMiddleware.CheckJTW)
+		r.Get("/", sm.GetAffiliateItems)
+		r.Get("/{id}", sm.GetAffiliateItemById)
+		r.Post("/", sm.PostAffiliateItem)
+		r.Put("/{id}", sm.PutAffiliateItem)
+	})
+	r.Route("/affiliateAgreements", func(r chi.Router) {
+		r.Use(AdminMiddleware.CheckJTW)
+		r.Get("/", sm.GetAffiliateAgreement)
+		r.Get("/{id}", sm.GetAffiliateAgreementById)
+		r.Post("/", sm.PostAffiliateAgreement)
+		r.Put("/orderPriority", sm.PutOrderAffiliateAgreement)
+		r.Put("/{id}/general", sm.PutAffiliateAgreementGeneral)
+		r.Put("/{id}/validities", sm.PutAffiliateAgreementValities)
+		r.Put("/{id}/products", sm.PutAffiliateAgreementProducts)
+		r.Put("/{id}/buyerTypes", sm.PutAffiliateAgreementBuyerTypes)
+	})
+	r.Route("/affiliates", func(r chi.Router) {
+		r.Use(AdminMiddleware.CheckJTW)
+		r.Get("/", sm.GetAffiliates)
+		r.Get("/{id}", sm.GetAffiliateById)
+		r.Put("/{id}", sm.PutAffiliate)
+		r.Put("/{id}/affiliateAgreements", sm.PutAffiliateAgreements)
 	})
 	return r
 }

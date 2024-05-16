@@ -1,14 +1,15 @@
 package controllers
 
 import (
+	"fmt"
+	"net/http"
+
 	"github.com/go-chi/chi"
 	"github.com/go-chi/chi/middleware"
 	"github.com/go-chi/cors"
 	AdminMiddleware "github.com/tiqueteo/adminv2-mock-api/api/middleware"
 	"github.com/tiqueteo/adminv2-mock-api/api/services"
 	"gorm.io/gorm"
-	"fmt"
-	"net/http"
 )
 
 func Init(db *gorm.DB) *chi.Mux {
@@ -25,8 +26,12 @@ func Init(db *gorm.DB) *chi.Mux {
 	}))
 
 	r.HandleFunc("/health", func(w http.ResponseWriter, r *http.Request) {
-        fmt.Fprint(w, "Hello, Go!")
-    })
+		fmt.Fprint(w, "Hello, Go!")
+	})
+
+	r.HandleFunc("/test", func(w http.ResponseWriter, r *http.Request) {
+		fmt.Fprint(w, "Test!")
+	})
 
 	r.Post("/login", sm.Login)
 	r.Route("/products", func(r chi.Router) {

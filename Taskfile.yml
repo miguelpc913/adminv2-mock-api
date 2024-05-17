@@ -22,4 +22,11 @@ tasks:
     cmds:
       - go mod download 
       - go mod tidy 
-      - air
+      - air -c .air.toml
+  clear-dev:
+    preconditions:
+      - test -f .devbox
+      - test -f devbox.lock
+    cmds:
+      - rm -rf .devbox
+      - rm devbox.lock

@@ -17,7 +17,7 @@ func Init(db *gorm.DB) *chi.Mux {
 	r.Use(middleware.Logger)
 	sm := services.NewServiceManager(db)
 	r.Use(cors.Handler(cors.Options{
-		AllowedOrigins:   []string{"http://localhost:8000", "https://admin-micro-qa.clorian.com"},
+		AllowedOrigins:   []string{"*"},
 		AllowedMethods:   []string{"GET", "POST", "PUT", "DELETE", "OPTIONS"},
 		AllowedHeaders:   []string{"Accept", "Authorization", "Content-Type", "X-CSRF-Token"},
 		ExposedHeaders:   []string{"Link"},
@@ -27,10 +27,6 @@ func Init(db *gorm.DB) *chi.Mux {
 
 	r.HandleFunc("/health", func(w http.ResponseWriter, r *http.Request) {
 		fmt.Fprint(w, "Hello, Go!")
-	})
-
-	r.HandleFunc("/test", func(w http.ResponseWriter, r *http.Request) {
-		fmt.Fprint(w, "Test!")
 	})
 
 	r.Post("/login", sm.Login)

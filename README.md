@@ -21,25 +21,20 @@ Mock Admin v2 API implementation for frontend testing purposes, by using [air](h
 
 The following project is developed on Go 1.22 the localhost run are set by docker compose and [devbox](https://www.jetify.com/devbox/docs/quickstart/).
 
-🛂 **NOTE for Developers**: Your workdir it's **"/admin"** folder. Do not change any other directory out of your workdir. If you need to make some changes (improve/update) out of your workdir, create a new branch and open a PR.
+🛂 **NOTE for Developers**: Your workdir it's **"/admin"** folder. Do not change any other directory out of your workdir. If you need to make some changes (improve/update) out of your workdir, create a new branch and open a PR. [WIP]
 
 ## Run it with Docker Compose
 
-We have defined two different compose:
-
-1. compose.build.yml
+1. compose.yml
 On this compose it will use the local.Dockerfile build as image.
-
-2. compose.cosmtrek.yml
-On this compose it will use the official [image](https://hub.docker.com/r/cosmtrek/air) as image, or point to the dev.Dockerfile in order to build based on the official image.
 
 ### START
 
 ```
-docker-compose -f <compose-name> up -d
+docker compose -f compose.yml up -d
 ```
 
-**compose-name**: compose.build.yml/compose.cosmtrek.yml
+**compose-name**: compose.yml
 
 ### STOP
 ```
@@ -49,7 +44,6 @@ docker compose stop
 ## Requirements to launch:
 
 - Docker
-- Docker compose
 
 ## Run it with Devbox:
 

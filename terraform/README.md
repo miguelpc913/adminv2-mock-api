@@ -4,8 +4,6 @@ New prove of concepts implementing Terraform tfstate storage to S3 bucket and lo
 
 ## Product:
 
-- Static React app deployed on S3 and Cloudfront, in AWS Dev account.
-
 ## AWS Services deployed:
 
 * [x] RDS
@@ -22,4 +20,4 @@ New prove of concepts implementing Terraform tfstate storage to S3 bucket and lo
 
 ### Maintainer Disclaimer
 
-
+Further information you can open an issue to [castrillo-clorian](https://github.com/castrillo-clorian)

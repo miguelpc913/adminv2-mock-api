@@ -1,0 +1,45 @@
+services:
+  admin-app:
+    container_name: adminContainer
+    build:
+      context: .
+      dockerfile: dev.Dockerfile
+    # image: 227320912480.dkr.ecr.eu-west-1.amazonaws.com/admin-mock-api:develop
+    # image: cosmtrek/air    
+    ports:
+      - "8080:8080"
+    environment:
+      - ENV_VAR=dev
+      - MYSQL_HOST=mysql-db
+      - MYSQL_PORT=3306
+      - MYSQL_USER=admin
+      - MYSQL_PASSWORD=admin
+      - MYSQL_DATABASE=admin_dev
+      - air_wd=/app
+    volumes:
+      - admin_data:/app
+    depends_on:
+      mysql-db:
+        condition: service_healthy
+
+  mysql-db:
+    container_name: adminDb
+    image: mysql
+    ports:
+      - "3306:3306"
+    volumes:
+      - mysql_data:/var/lib/mysql
+    environment:
+      MYSQL_ROOT_PASSWORD: root
+      MYSQL_DATABASE: admin_dev
+      MYSQL_USER: admin
+      MYSQL_PASSWORD: admin
+    healthcheck:
+      test: ["CMD", "mysqladmin", "ping", "-h", "localhost"]
+      interval: 10s
+      timeout: 10s
+      retries: 5
+
+volumes:
+  mysql_data:
+  admin_data:

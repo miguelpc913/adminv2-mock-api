@@ -21,13 +21,26 @@ Mock Admin v2 API implementation for frontend testing purposes, by using [air](h
 
 The following project is developed on Go 1.22 the localhost run are set by docker compose and [devbox](https://www.jetify.com/devbox/docs/quickstart/).
 
+🛂 **NOTE for Developers**: Your workdir it's **"/admin"** folder. Do not change any other directory out of your workdir. If you need to make some changes (improve/update) out of your workdir, create a new branch and open a PR.
+
 ## Run it with Docker Compose
+
+We have defined two different compose:
+
+1. compose.build.yml
+On this compose it will use the local.Dockerfile build as image.
+
+2. compose.cosmtrek.yml
+On this compose it will use the official [image](https://hub.docker.com/r/cosmtrek/air) as image, or point to the dev.Dockerfile in order to build based on the official image.
 
 ### START
 
 ```
-docker-compose up -d
+docker-compose -f <compose-name> up -d
 ```
+
+**compose-name**: compose.build.yml/compose.cosmtrek.yml
+
 ### STOP
 ```
 docker compose down
@@ -37,7 +50,6 @@ docker compose stop
 
 - Docker
 - Docker compose
-- [Devbox](https://www.jetify.com/devbox/docs/quickstart/)
 
 ## Run it with Devbox:
 
@@ -80,3 +92,7 @@ The workflow designed does the following steps:
 * Deploy a new service at ECS by using new image and task definition.
 
 ## Notes
+
+```
+docker run -it --rm -w "$HOME/projects/github/adminv2-mock-api/admin" -v $(pwd)/admin:$HOME/projects/github/adminv2-mock-api/admin -p 8080:8080 cosmtrek/air
+```

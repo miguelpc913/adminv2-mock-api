@@ -90,3 +90,5 @@ Testing project by using a cosmtrek/air as image.
 ```
 docker run -it --rm -w "$HOME/projects/github/adminv2-mock-api/admin" -v $(pwd)/admin:$HOME/projects/github/adminv2-mock-api/admin -p 8080:8080 cosmtrek/air
 ```
+
+**No healcheck implemented** on this solution due we have alredy defined the Healcheck on ALB TG [admin-mock-api](arn:aws:elasticloadbalancing:eu-west-1:227320912480:targetgroup/admin-mock-api/1c0ea9a901028fa6). further info: [aws question](https://repost.aws/questions/QUdmR0oMn2Spa61RpKGWyPfg/ecs-should-i-use-alb-healthchecks-container-healthchecks-or-both)

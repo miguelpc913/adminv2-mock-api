@@ -1,5 +1,3 @@
-
-
 ***<p style="text-align: center;">Welcome to Admin Mock API</p>***
 
 <p align="center">
@@ -86,6 +84,8 @@ The workflow designed does the following steps:
 * Deploy a new service at ECS by using new image and task definition.
 
 ## Notes
+
+Testing project by using a cosmtrek/air as image.
 
 ```
 docker run -it --rm -w "$HOME/projects/github/adminv2-mock-api/admin" -v $(pwd)/admin:$HOME/projects/github/adminv2-mock-api/admin -p 8080:8080 cosmtrek/air

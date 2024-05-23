@@ -3,3 +3,4 @@ tmp
 .devbox
 .admin
 *.lock
+.terraform.lock.hcl

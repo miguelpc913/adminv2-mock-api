@@ -29,10 +29,6 @@ func Init(db *gorm.DB) *chi.Mux {
 		fmt.Fprint(w, "Hello, Go!")
 	})
 
-	r.HandleFunc("/test", func(w http.ResponseWriter, r *http.Request) {
-		fmt.Fprint(w, "Test!")
-	})
-
 	r.Post("/login", sm.Login)
 	r.Route("/products", func(r chi.Router) {
 		r.Use(AdminMiddleware.CheckJTW)

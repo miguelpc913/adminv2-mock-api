@@ -18,7 +18,7 @@ import (
 // https://github.com/go-chi/cors/blob/master/_example/main.go#L79
 // #################################################################
 func AllowOriginFunc(r *http.Request, origin string) bool {
-	allowedOrigins := []string{"http://example.com", "http://coco.com"}
+	allowedOrigins := []string{"http://localhost", "https://admin-micro-qa.clorian.com"}
 	for _, o := range allowedOrigins {
 		if origin == o {
 			return true

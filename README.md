@@ -13,8 +13,9 @@
 
 1. [🐋 Docker Compose](#run-it-with-docker-compose)
 2. [📦 Run it on Devbox](#run-it-with-devbox)
-3. [🧪 Pipeline](#pipeline)
-4. [📄 Notes](#notes)
+3. [🤖 Testing CORS origins](#testing-CORS)
+4. [🧪 Pipeline](#pipeline)
+5. [📄 Notes](#notes)
 
 Mock Admin v2 API implementation for frontend testing purposes, by using [air](https://github.com/cosmtrek/air).
 
@@ -75,6 +76,59 @@ devbox run stop_db
 ## Requirements to launch:
 
 - [Devbox](https://www.jetify.com/devbox/docs/quickstart/)
+
+## testing CORS
+
+By following the [go-chi](https://github.com/go-chi/cors/blob/master/_example/main.go) cors examples we can use the following request in order to test the origins set. Based on localhost.
+
+```
+curl -i http://localhost:8080/ -H "Origin: <origin>" -H "Access-Control-Request-Method: GET" -X OPTIONS
+```
+
+example:
+
+origins set: "http://example.com", "http://coco.com"
+
+allowed origin output:
+
+```
+→ curl -i http://localhost:8080/health -H "Origin: http://localhost" -H "Access-Control-Request-Method: GET" -X OPTIONS
+HTTP/1.1 200 OK
+Access-Control-Allow-Credentials: true
+Access-Control-Allow-Methods: GET
+Access-Control-Allow-Origin: http://localhost
+Access-Control-Max-Age: 300
+Vary: Origin
+Vary: Access-Control-Request-Method
+Vary: Access-Control-Request-Headers
+Date: Mon, 27 May 2024 07:04:06 GMT
+Content-Length: 0
+```
+
+not allowed origin output:
+
+```
+→ curl -i http://localhost:8080/health -H "Origin: http://localhost.com" -H "Access-Control-Request-Method: GET" -X OPTIONS
+HTTP/1.1 200 OK
+Vary: Origin
+Vary: Access-Control-Request-Method
+Vary: Access-Control-Request-Headers
+Date: Mon, 27 May 2024 07:03:51 GMT
+Content-Length: 0
+```
+
+Output from Air Go app:
+
+```
+building...
+running...
+Successfully connected! &{0xc000146510 <nil> 0 0xc000102e00 1}
+2024/05/27 09:03:42 Disallowed origin: http://coco.com, Client IP: [::1]:44570
+2024/05/27 09:03:42 "OPTIONS http://localhost:8080/health HTTP/1.1" from [::1]:44570 - 200 0B in 63.308µs
+2024/05/27 09:03:51 Disallowed origin: http://localhost.com, Client IP: [::1]:41600
+2024/05/27 09:03:51 "OPTIONS http://localhost:8080/health HTTP/1.1" from [::1]:41600 - 200 0B in 88.989µs
+2024/05/27 09:04:06 "OPTIONS http://localhost:8080/health HTTP/1.1" from [::1]:37370 - 200 0B in 34.571µs
+```
 
 ## Pipeline
 

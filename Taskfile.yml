@@ -25,6 +25,7 @@ tasks:
       - air -c .air.toml
   clear-dev:
     preconditions:
+      - devbox run stop_db
       - test -f .devbox
       - test -f devbox.lock
     cmds:

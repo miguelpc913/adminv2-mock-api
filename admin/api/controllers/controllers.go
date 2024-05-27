@@ -3,6 +3,7 @@ package controllers
 import (
 	"fmt"
 	"net/http"
+	"log"
 
 	"github.com/go-chi/chi"
 	"github.com/go-chi/chi/middleware"
@@ -12,12 +13,36 @@ import (
 	"gorm.io/gorm"
 )
 
+// #################################################################
+// based on this example
+// https://github.com/go-chi/cors/blob/master/_example/main.go#L79
+// #################################################################
+func AllowOriginFunc(r *http.Request, origin string) bool {
+	allowedOrigins := []string{"http://example.com", "http://coco.com"}
+	for _, o := range allowedOrigins {
+		if origin == o {
+			return true
+		}
+	}
+
+	// Get the client's IP address
+	clientIP := r.RemoteAddr
+
+	// Print the log in red color
+	red := "\033[31m"
+	reset := "\033[0m"
+	log.Printf("%sDisallowed origin: %s, Client IP: %s%s", red, origin, clientIP, reset)
+
+	return false
+}
+
 func Init(db *gorm.DB) *chi.Mux {
 	r := chi.NewRouter()
 	r.Use(middleware.Logger)
 	sm := services.NewServiceManager(db)
 	r.Use(cors.Handler(cors.Options{
-		AllowedOrigins:   []string{"https://*", "http://*"},
+		AllowOriginFunc:  AllowOriginFunc,
+		// AllowedOrigins:   []string{"https://foo.com"},
 		AllowedMethods:   []string{"GET", "POST", "PUT", "DELETE", "OPTIONS"},
 		AllowedHeaders:   []string{"Accept", "Authorization", "Content-Type", "X-CSRF-Token"},
 		ExposedHeaders:   []string{"Link"},
@@ -117,3 +142,4 @@ func Init(db *gorm.DB) *chi.Mux {
 	})
 	return r
 }
+

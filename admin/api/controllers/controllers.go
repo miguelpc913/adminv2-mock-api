@@ -2,8 +2,8 @@ package controllers
 
 import (
 	"fmt"
-	"net/http"
 	"log"
+	"net/http"
 
 	"github.com/go-chi/chi"
 	"github.com/go-chi/chi/middleware"
@@ -18,7 +18,7 @@ import (
 // https://github.com/go-chi/cors/blob/master/_example/main.go#L79
 // #################################################################
 func AllowOriginFunc(r *http.Request, origin string) bool {
-	allowedOrigins := []string{"http://localhost", "https://admin-micro-qa.clorian.com"}
+	allowedOrigins := []string{"http://localhost:8000", "https://admin-micro-qa.clorian.com"}
 	for _, o := range allowedOrigins {
 		if origin == o {
 			return true
@@ -41,7 +41,7 @@ func Init(db *gorm.DB) *chi.Mux {
 	r.Use(middleware.Logger)
 	sm := services.NewServiceManager(db)
 	r.Use(cors.Handler(cors.Options{
-		AllowOriginFunc:  AllowOriginFunc,
+		AllowOriginFunc: AllowOriginFunc,
 		// AllowedOrigins:   []string{"https://foo.com"},
 		AllowedMethods:   []string{"GET", "POST", "PUT", "DELETE", "OPTIONS"},
 		AllowedHeaders:   []string{"Accept", "Authorization", "Content-Type", "X-CSRF-Token"},
@@ -142,4 +142,3 @@ func Init(db *gorm.DB) *chi.Mux {
 	})
 	return r
 }
-

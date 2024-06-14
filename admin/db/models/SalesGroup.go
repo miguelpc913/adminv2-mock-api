@@ -17,7 +17,7 @@ const (
 	WebGroups             SalesGroupType = "WEB_GROUPS"
 	Seller                SalesGroupType = "SELLER"
 	CustomerService       SalesGroupType = "CUSTOMER_SERVICE"
-	BoxOffice             SalesGroupType = "BOX_OFFICE"
+	BoxOfficeSalesGroups  SalesGroupType = "BOX_OFFICE"
 	SelfService           SalesGroupType = "SELF_SERVICE"
 	HTML                  SalesGroupType = "HTML"
 	BoxOfficeGroups       SalesGroupType = "BOX_OFFICE_GROUPS"

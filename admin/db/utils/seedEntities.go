@@ -13,62 +13,103 @@ func isEntityEmpty(db *gorm.DB, entity interface{}) bool {
 	return errors.Is(err, gorm.ErrRecordNotFound)
 }
 
-func isDBEmpty(db *gorm.DB) bool {
-	entities := []interface{}{
-		&models.BuyerType{},
-		&models.Verifier{},
-		&models.PaymentMethod{},
-		&models.Product{},
-		&models.ProductTag{},
-		&models.SalesGroupHtml{},
-		&models.SalesGroup{},
-		&models.Venue{},
-		&models.ProductInfoType{},
-		&models.ProductInfo{},
-		&models.RecommendationRule{},
-		&models.Promotion{},
-		&models.AffiliateItem{},
-		&models.AffiliateAgreement{},
-		&models.Affiliate{},
-	}
-
-	for _, entity := range entities {
-		if !isEntityEmpty(db, entity) {
-			return false
-		}
-	}
-	return true
-}
-
 func SeedEntities(db *gorm.DB) {
-	if isDBEmpty(db) {
+	entityEmptyMap := map[string]bool{}
+	if isEntityEmpty(db, &models.BuyerType{}) {
 		seeds.SeedBuyerType(db)
+		entityEmptyMap["BuyerType"] = true
+	}
+	if isEntityEmpty(db, &models.Verifier{}) {
 		seeds.SeedVerifier(db)
+		entityEmptyMap["Verifier"] = true
+	}
+	if isEntityEmpty(db, &models.PaymentMethod{}) {
 		seeds.SeedPaymentMethod(db)
+		entityEmptyMap["PaymentMethod"] = true
+	}
+	if isEntityEmpty(db, &models.Product{}) {
 		seeds.SeedProduct(db)
+		entityEmptyMap["Product"] = true
+	}
+	if isEntityEmpty(db, &models.ProductTag{}) {
 		seeds.SeedProductTag(db)
+		entityEmptyMap["ProductTag"] = true
+	}
+	if isEntityEmpty(db, &models.SalesGroupHtml{}) {
 		seeds.SeedSalesGroupHtml(db)
+		entityEmptyMap["SalesGroupHtml"] = true
+	}
+	if isEntityEmpty(db, &models.Venue{}) {
 		seeds.SeedVenues(db)
+		entityEmptyMap["Venue"] = true
+	}
+	if isEntityEmpty(db, &models.SalesGroup{}) {
 		seeds.SeedSalesGroups(db)
+		entityEmptyMap["SalesGroup"] = true
+	}
+	if isEntityEmpty(db, &models.ProductInfoType{}) {
 		seeds.SeedProductInfoTypes(db)
+		entityEmptyMap["ProductInfoType"] = true
+	}
+	if isEntityEmpty(db, &models.ProductInfo{}) {
 		seeds.SeedProductInfos(db)
+		entityEmptyMap["ProductInfo"] = true
+	}
+	if isEntityEmpty(db, &models.RecommendationRule{}) {
 		seeds.SeedRecommendationRules(db)
+		entityEmptyMap["RecommendationRule"] = true
+	}
+	if isEntityEmpty(db, &models.Promotion{}) {
 		seeds.SeedPromotions(db)
-		seeds.SeedPromotionPrices(db)
-		seeds.SeedPromotionCodes(db)
+		entityEmptyMap["Promotion"] = true
+	}
+	if isEntityEmpty(db, &models.AffiliateItem{}) {
 		seeds.SeedAffiliateItems(db)
+		entityEmptyMap["AffiliateItem"] = true
+	}
+	if isEntityEmpty(db, &models.AffiliateAgreement{}) {
 		seeds.SeedAffiliateAgreements(db)
+		entityEmptyMap["AffiliateAgreement"] = true
+	}
+	if isEntityEmpty(db, &models.Affiliate{}) {
 		seeds.SeedAffiliates(db)
-		// Seed associations
+		entityEmptyMap["Affiliate"] = true
+	}
+	if isEntityEmpty(db, &models.BoxOffice{}) {
+		seeds.SeedBoxOffice(db)
+		entityEmptyMap["BoxOffice"] = true
+	}
+
+	// Seed associations
+	if entityEmptyMap["SalesGroup"] {
 		seeds.SeedSalesGroupsAssociations(db)
+	}
+	if entityEmptyMap["ProductTag"] {
 		seeds.SeedProductTagAssociation(db)
+	}
+	if entityEmptyMap["ProductInfo"] {
 		seeds.SeedProductInfoAssociations(db)
+	}
+	if entityEmptyMap["RecommendationRule"] {
 		seeds.SeedRecommendationRulesAssociations(db)
+	}
+	if entityEmptyMap["Promotion"] {
 		seeds.SeedPromotionPrices(db)
 		seeds.SeedPromotionCodes(db)
 		seeds.SeedPromotionAssociations(db)
+	}
+	if entityEmptyMap["AffiliateItem"] {
 		seeds.SeedAffiliateItemsAssociations(db)
+	}
+	if entityEmptyMap["AffiliateAgreement"] {
 		seeds.SeedAffiliateAgreementAssociations(db)
+	}
+	if entityEmptyMap["Affiliate"] {
 		seeds.SeedAffiliateAssociations(db)
 	}
+	if entityEmptyMap["BoxOffice"] {
+		seeds.SeedBoxOfficeAssociations(db)
+		seeds.SeedBoxOfficeLanguages(db)
+	}
+
 }

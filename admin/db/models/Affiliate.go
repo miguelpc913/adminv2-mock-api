@@ -9,10 +9,10 @@ import (
 type AffiliateStatus string
 
 const (
-	Pending  AffiliateStatus = "pending"
-	Enabled  AffiliateStatus = "enabled"
-	Disabled AffiliateStatus = "disabled"
-	Rejected AffiliateStatus = "rejected"
+	PendingAffiliate  AffiliateStatus = "pending"
+	EnabledAffiliate  AffiliateStatus = "enabled"
+	DisabledAffiliate AffiliateStatus = "disabled"
+	RejectedAffiliate AffiliateStatus = "rejected"
 )
 
 type Affiliate struct {

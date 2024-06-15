@@ -51,5 +51,4 @@ func (sm *ServiceManager) PutAffiliateAgreements(w http.ResponseWriter, r *http.
 	} else {
 		helpers.WriteJSON(w, http.StatusOK, map[string]string{"Success": "Updated properly"})
 	}
-
 }

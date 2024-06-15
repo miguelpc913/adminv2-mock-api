@@ -140,5 +140,22 @@ func Init(db *gorm.DB) *chi.Mux {
 		r.Put("/{id}", sm.PutAffiliate)
 		r.Put("/{id}/affiliateAgreements", sm.PutAffiliateAgreements)
 	})
+	r.Route("/boxOffices", func(r chi.Router) {
+		r.Use(AdminMiddleware.CheckJTW)
+		r.Get("/", sm.GetBO)
+		r.Post("/", sm.PostBO)
+		r.Get("/{id}", sm.GetBOById)
+		r.Put("/{id}/basicConfigurations", sm.PutBOBasicConfigurations)
+		r.Put("/{id}/cashCount", sm.PutBOCashCount)
+		r.Put("/{id}/presentations", sm.PutBOPresentations)
+		r.Put("/{id}/functionalities", sm.PutBOFunctionalities)
+		r.Put("/{id}/languages", sm.PutBOLanguages)
+		r.Put("/{id}/printSettings", sm.PutBOPrintSettings)
+		r.Put("/{id}/paymentSettings", sm.PutBOPaymentSettings)
+		r.Put("/{id}/validations", sm.PutBOValidations)
+		r.Put("/{id}/advancedSettings", sm.PutBOAdvancedSettings)
+		r.Put("/{id}/salesGroups", sm.PutBOSalesGroups)
+		r.Put("/{id}/products", sm.PutBOProducts)
+	})
 	return r
 }

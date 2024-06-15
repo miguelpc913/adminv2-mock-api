@@ -29,5 +29,5 @@ func UpdateRelation[J any, T any](r *http.Request, model J, modelToAssociate T, 
 	}
 
 	db.Model(&model).Association(associationName).Replace(modelSet)
-	return errors.New("ids are not valid")
+	return nil
 }

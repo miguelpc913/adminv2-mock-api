@@ -3,7 +3,11 @@ FROM golang:1.22-alpine
 
 WORKDIR /app
 
-RUN go install github.com/cosmtrek/air@latest
+#RUN go install github.com/cosmtrek/air@latest
+# Issue reported, solution:
+# https://github.com/air-verse/air/issues/532
+##############################################
+RUN go install github.com/air-verse/air@latest
 
 COPY admin/ ./
 

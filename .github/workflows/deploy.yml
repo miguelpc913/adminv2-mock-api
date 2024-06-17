@@ -6,7 +6,7 @@ on:
     paths:
       - admin/**
       - .github/workflows/**
-    
+#jose    
 env:
   AWS_REGION: eu-west-1                   
   ECS_SERVICE: admin-mock-api      

@@ -75,6 +75,10 @@ func Init(db *gorm.DB) *chi.Mux {
 		r.Use(AdminMiddleware.CheckJTW)
 		r.Get("/", sm.GetProductTags)
 	})
+	r.Route("/verifiers", func(r chi.Router) {
+		r.Use(AdminMiddleware.CheckJTW)
+		r.Get("/", sm.GetVerifiers)
+	})
 	r.Route("/productInfos", func(r chi.Router) {
 		r.Use(AdminMiddleware.CheckJTW)
 		r.Get("/", sm.GetProductInfos)

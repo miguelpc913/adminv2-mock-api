@@ -9,6 +9,6 @@ import (
 
 func (sm *ServiceManager) GetVerifiers(w http.ResponseWriter, r *http.Request) {
 	var verifiers []models.Verifier
-	response := helpers.PaginateRequest(r, verifiers, sm.db, "verifiers", "status")
+	response := helpers.PaginateRequest(r, verifiers, sm.db, "verifiers")
 	helpers.WriteJSON(w, http.StatusOK, response)
 }

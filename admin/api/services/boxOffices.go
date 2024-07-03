@@ -11,7 +11,7 @@ import (
 
 func (sm *ServiceManager) GetBO(w http.ResponseWriter, r *http.Request) {
 	var boxOffices []models.BoxOffice
-	response := helpers.PaginateRequest(r, boxOffices, sm.db, "boxOffices", "status")
+	response := helpers.PaginateRequest(r, boxOffices, sm.db, "boxOffices")
 	helpers.WriteJSON(w, http.StatusOK, response)
 }
 

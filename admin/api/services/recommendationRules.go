@@ -2,44 +2,27 @@ package services
 
 import (
 	"encoding/json"
-	"math"
 	"net/http"
 
-	"github.com/go-chi/chi"
 	dtoRr "github.com/tiqueteo/adminv2-mock-api/api/dto/recommendationRules"
 	"github.com/tiqueteo/adminv2-mock-api/api/helpers"
 	"github.com/tiqueteo/adminv2-mock-api/db/models"
-	"gorm.io/gorm/clause"
 )
 
 func (sm *ServiceManager) GetRecommendationRules(w http.ResponseWriter, r *http.Request) {
 	var recommendations []models.RecommendationRule
-	productId := r.URL.Query().Get("productId")
-	pagination := helpers.GeneratePaginationFromRequest(r)
-	response := make(map[string]interface{})
-	offset := (pagination.CurrentPage - 1) * pagination.Limit
-	var totalItems int64
-	if productId != "" {
-		_ = sm.db.Preload(clause.Associations).Model(&recommendations).Where("product_id = ?", productId).Count(&totalItems).Limit(pagination.Limit).Offset(offset).Find(&recommendations)
-	} else {
-		_ = sm.db.Preload(clause.Associations).Model(&recommendations).Count(&totalItems).Limit(pagination.Limit).Offset(offset).Find(&recommendations)
-	}
-	response["recommendationRules"] = recommendations
-	response["limit"] = pagination.Limit
-	response["currentPage"] = pagination.CurrentPage
-	response["totalPages"] = int(math.Ceil(float64(totalItems) / float64(pagination.Limit)))
+	response := helpers.PaginateRequest(r, recommendations, sm.db, "recommendationRules")
 	helpers.WriteJSON(w, http.StatusOK, response)
 }
 
 func (sm *ServiceManager) GetRecommendationRuleById(w http.ResponseWriter, r *http.Request) {
 	var recommendationRule models.RecommendationRule
-	id := chi.URLParam(r, "id")
-	err := sm.db.Preload(clause.Associations).Find(&recommendationRule, id).Error
+	err := helpers.GetById(&recommendationRule, r, sm.db)
 	if err != nil {
-		helpers.WriteJSON(w, http.StatusNotFound, map[string]string{"error": "There is not recommendation with that id"})
-		return
+		helpers.WriteJSON(w, http.StatusNotFound, map[string]string{"error": "There is no recommendation rule with that id"})
+	} else {
+		helpers.WriteJSON(w, http.StatusOK, recommendationRule)
 	}
-	helpers.WriteJSON(w, http.StatusOK, recommendationRule)
 }
 
 func (sm *ServiceManager) PutOrderRecommendationRules(w http.ResponseWriter, r *http.Request) {
@@ -61,56 +44,42 @@ func (sm *ServiceManager) PutOrderRecommendationRules(w http.ResponseWriter, r *
 }
 
 func (sm *ServiceManager) PutRecommendationRuleIdentity(w http.ResponseWriter, r *http.Request) {
-	var recommendation models.RecommendationRule
 	var req dtoRr.PutRecommendationIdentity
-	id := chi.URLParam(r, "id")
+	var recommendationRule models.RecommendationRule
+	err := helpers.GetById(&recommendationRule, r, sm.db)
+	if err != nil {
+		helpers.WriteJSON(w, http.StatusNotFound, map[string]string{"error": "There is no recommendation rule with that id"})
+	}
 	if err := json.NewDecoder(r.Body).Decode(&req); err != nil {
 		helpers.WriteJSON(w, http.StatusBadRequest, map[string]string{"error": "Invalid request"})
 		return
 	}
-	err := sm.db.Model(recommendation).Where("recommendation_rule_id = ?", id).Select("Name", "Status", "OfferingType").Updates(req).Error
+	recommendationRuleUpdate := helpers.StructToMap(req)
+	err = sm.db.Model(&recommendationRule).Updates(recommendationRuleUpdate).Error
 	if err != nil {
 		helpers.WriteJSON(w, http.StatusBadRequest, map[string]string{"error": "Couldn't update"})
 		return
 	}
-
-	helpers.WriteJSON(w, http.StatusOK, recommendation)
+	helpers.WriteJSON(w, http.StatusOK, recommendationRule)
 }
 
 func (sm *ServiceManager) PutRecommendationRuleGeneral(w http.ResponseWriter, r *http.Request) {
 	var recommendation models.RecommendationRule
 	var req dtoRr.PutRecommendationGeneral
-	id := chi.URLParam(r, "id")
+	err := helpers.GetById(&recommendation, r, sm.db)
+	if err != nil {
+		helpers.WriteJSON(w, http.StatusNotFound, map[string]string{"error": "There is no recommendation rule with that id"})
+	}
 	if err := json.NewDecoder(r.Body).Decode(&req); err != nil {
 		helpers.WriteJSON(w, http.StatusBadRequest, map[string]string{"error": err.Error()})
 		return
 	}
-	err := sm.db.Find(&recommendation, id).Error
-	if err != nil {
-		helpers.WriteJSON(w, http.StatusNotFound, map[string]string{"error": "There is not recommendation with that id"})
-		return
-	}
-	baseProduct := models.Product{}
-	err = sm.db.First(&baseProduct, "product_id = ?", req.ProductId).Error
-	if err != nil {
-		helpers.WriteJSON(w, http.StatusBadRequest, map[string]string{"error": "Base product is not valid"})
-		return
-	}
-
-	offeredProduct := models.Product{}
-	err = sm.db.First(&offeredProduct, "product_id = ?", req.OfferedProductId).Error
-	if err != nil {
-		helpers.WriteJSON(w, http.StatusBadRequest, map[string]string{"error": "Offered product is not valid"})
-		return
-	}
-	recommendationRule := models.RecommendationRule{
-		Product:          baseProduct,
+	recommendationRuleUpdate := models.RecommendationRule{
 		ProductId:        req.ProductId,
-		OfferedProduct:   offeredProduct,
 		OfferedProductId: req.OfferedProductId,
 		DirectAddToCart:  req.DirectAddToCart,
 	}
-	err = sm.db.Model(recommendation).Where("recommendation_rule_id = ?", id).Select("ProductId", "OfferedProductId", "DirectAddToCart").Updates(recommendationRule).Error
+	err = sm.db.Model(&recommendation).Select("ProductId", "OfferedProductId", "DirectAddToCart").Updates(recommendationRuleUpdate).Error
 	if err != nil {
 		helpers.WriteJSON(w, http.StatusBadRequest, map[string]string{"error": "Couldn't update"})
 		return
@@ -122,14 +91,12 @@ func (sm *ServiceManager) PutRecommendationRuleGeneral(w http.ResponseWriter, r 
 func (sm *ServiceManager) PutRecommendationRuleValidities(w http.ResponseWriter, r *http.Request) {
 	var recommendation models.RecommendationRule
 	var req dtoRr.PutRecommendationValidities
-	id := chi.URLParam(r, "id")
+	err := helpers.GetById(&recommendation, r, sm.db)
+	if err != nil {
+		helpers.WriteJSON(w, http.StatusNotFound, map[string]string{"error": "There is no recommendation rule with that id"})
+	}
 	if err := json.NewDecoder(r.Body).Decode(&req); err != nil {
 		helpers.WriteJSON(w, http.StatusBadRequest, map[string]string{"error": "Invalid request"})
-		return
-	}
-	err := sm.db.Find(&recommendation, id).Error
-	if err != nil {
-		helpers.WriteJSON(w, http.StatusNotFound, map[string]string{"error": "There is not recommendation with that id"})
 		return
 	}
 	startDateTime, err := helpers.ParseDateTime(req.StartDatetime)
@@ -162,7 +129,7 @@ func (sm *ServiceManager) PutRecommendationRuleValidities(w http.ResponseWriter,
 		helpers.WriteJSON(w, http.StatusBadRequest, map[string]string{"error": "EndTime is not valid"})
 		return
 	}
-	recommendationRule := models.RecommendationRule{
+	recommendationRuleUpdate := models.RecommendationRule{
 		StartDatetime:              startDateTime,
 		EndDatetime:                endDatetime,
 		EventStartDatetime:         eventStartDatetime,
@@ -173,7 +140,7 @@ func (sm *ServiceManager) PutRecommendationRuleValidities(w http.ResponseWriter,
 		SessionOffsetMinutesBefore: req.SessionOffsetMinutesBefore,
 		SessionOffsetMinutesAfter:  req.SessionOffsetMinutesAfter,
 	}
-	err = sm.db.Model(recommendation).Where("recommendation_rule_id = ?", id).Updates(recommendationRule).Error
+	err = sm.db.Model(&recommendation).Updates(recommendationRuleUpdate).Error
 	if err != nil {
 		helpers.WriteJSON(w, http.StatusBadRequest, map[string]string{"error": "Couldn't update"})
 		return
@@ -185,79 +152,42 @@ func (sm *ServiceManager) PutRecommendationRuleValidities(w http.ResponseWriter,
 func (sm *ServiceManager) PutRecommendationDisplay(w http.ResponseWriter, r *http.Request) {
 	var recommendation models.RecommendationRule
 	var req dtoRr.PutRecommendationDisplay
-	id := chi.URLParam(r, "id")
-	if err := json.NewDecoder(r.Body).Decode(&req); err != nil {
-		helpers.WriteJSON(w, http.StatusBadRequest, map[string]string{"error": "Invalid request"})
-		return
-	}
-	err := sm.db.Find(&recommendation, id).Error
+	err := helpers.GetById(&recommendation, r, sm.db)
 	if err != nil {
 		helpers.WriteJSON(w, http.StatusNotFound, map[string]string{"error": "There is not recommendation with that id"})
 		return
 	}
-	err = sm.db.Model(recommendation).Where("recommendation_rule_id = ?", id).Updates(req).Error
+	if err := json.NewDecoder(r.Body).Decode(&req); err != nil {
+		helpers.WriteJSON(w, http.StatusBadRequest, map[string]string{"error": "Invalid request"})
+		return
+	}
+	recommendationRuleUpdate := helpers.StructToMap(req)
+	err = sm.db.Model(&recommendation).Updates(recommendationRuleUpdate).Error
 	if err != nil {
 		helpers.WriteJSON(w, http.StatusBadRequest, map[string]string{"error": "Couldn't update"})
 		return
 	}
-
 	helpers.WriteJSON(w, http.StatusOK, recommendation)
 }
 
 func (sm *ServiceManager) PutRecommendationSalesGroups(w http.ResponseWriter, r *http.Request) {
 	var recommendation models.RecommendationRule
-	req := []int{}
-	id := chi.URLParam(r, "id")
-	err := sm.db.Find(&recommendation, id).Error
+	err := helpers.UpdateRelation(r, recommendation, models.SalesGroup{}, sm.db, "SalesGroupSet")
 	if err != nil {
-		helpers.WriteJSON(w, http.StatusNotFound, map[string]string{"error": "There is no recommendation info with that id"})
-		return
+		helpers.WriteJSON(w, http.StatusNotFound, map[string]string{"error": err.Error()})
+	} else {
+		helpers.WriteJSON(w, http.StatusOK, map[string]string{"Success": "Updated properly"})
 	}
-	if err := json.NewDecoder(r.Body).Decode(&req); err != nil {
-		helpers.WriteJSON(w, http.StatusBadRequest, map[string]string{"error": "Invalid request"})
-		return
-	}
-	salesGroups := []models.SalesGroup{}
-	for _, id := range req {
-		salesGroup := models.SalesGroup{}
-		if err := sm.db.First(&salesGroup, id).Error; err != nil {
-			helpers.WriteJSON(w, http.StatusBadRequest, map[string]string{"error": "SalesGroups are not valid"})
-			return
-		}
-		salesGroups = append(salesGroups, salesGroup)
-	}
-
-	sm.db.Model(&recommendation).Association("SalesGroupSet").Replace(salesGroups)
-
-	helpers.WriteJSON(w, http.StatusOK, map[string]string{"Success": "Updated properly"})
 }
 
 func (sm *ServiceManager) PutRecommendationBuyerTypes(w http.ResponseWriter, r *http.Request) {
 	var recommendation models.RecommendationRule
-	req := []int{}
-	id := chi.URLParam(r, "id")
-	err := sm.db.Find(&recommendation, id).Error
+	err := helpers.UpdateRelation(r, recommendation, models.BuyerType{}, sm.db, "BuyerTypeSet")
 	if err != nil {
-		helpers.WriteJSON(w, http.StatusNotFound, map[string]string{"error": "There is no recommendation info with that id"})
-		return
+		helpers.WriteJSON(w, http.StatusNotFound, map[string]string{"error": err.Error()})
+	} else {
+		helpers.WriteJSON(w, http.StatusOK, map[string]string{"Success": "Updated properly"})
 	}
-	if err := json.NewDecoder(r.Body).Decode(&req); err != nil {
-		helpers.WriteJSON(w, http.StatusBadRequest, map[string]string{"error": "Invalid request"})
-		return
-	}
-	buyerTypes := []models.BuyerType{}
-	for _, id := range req {
-		buyerType := models.BuyerType{}
-		if err := sm.db.First(&buyerType, id).Error; err != nil {
-			helpers.WriteJSON(w, http.StatusBadRequest, map[string]string{"error": "Buyer types are not valid"})
-			return
-		}
-		buyerTypes = append(buyerTypes, buyerType)
-	}
-
-	sm.db.Model(&recommendation).Association("BuyerTypeSet").Replace(buyerTypes)
-
-	helpers.WriteJSON(w, http.StatusOK, map[string]string{"Success": "Updated properly"})
 }
 
 func (sm *ServiceManager) PostRecommendationRule(w http.ResponseWriter, r *http.Request) {
@@ -301,37 +231,15 @@ func (sm *ServiceManager) PostRecommendationRule(w http.ResponseWriter, r *http.
 
 	//Manage associations
 	salesGroups := []models.SalesGroup{}
-	for _, id := range req.SalesGroupSet {
-		salesGroup := models.SalesGroup{}
-		if err := sm.db.First(&salesGroup, id).Error; err != nil {
-			helpers.WriteJSON(w, http.StatusBadRequest, map[string]string{"error": "SalesGroups are not valid"})
-			return
-		}
-		salesGroups = append(salesGroups, salesGroup)
-	}
-
-	buyerTypes := []models.BuyerType{}
-	for _, id := range req.BuyerTypeSet {
-		buyerType := models.BuyerType{}
-		if err := sm.db.First(&buyerType, id).Error; err != nil {
-			helpers.WriteJSON(w, http.StatusBadRequest, map[string]string{"error": "buyerTypes are not valid"})
-			return
-		}
-		buyerTypes = append(buyerTypes, buyerType)
-	}
-
-	//Find products
-	baseProduct := models.Product{}
-	err = sm.db.First(&baseProduct, "product_id = ?", req.ProductId).Error
+	err = helpers.GetByIds(&salesGroups, req.SalesGroupSet, sm.db)
 	if err != nil {
-		helpers.WriteJSON(w, http.StatusBadRequest, map[string]string{"error": "Base product is not valid"})
+		helpers.WriteJSON(w, http.StatusBadRequest, map[string]string{"error": "salesgroups are not valid"})
 		return
 	}
-
-	offeredProduct := models.Product{}
-	err = sm.db.First(&offeredProduct, "product_id = ?", req.OfferedProductId).Error
+	buyerTypes := []models.BuyerType{}
+	err = helpers.GetByIds(&buyerTypes, req.BuyerTypeSet, sm.db)
 	if err != nil {
-		helpers.WriteJSON(w, http.StatusBadRequest, map[string]string{"error": "Offered product is not valid"})
+		helpers.WriteJSON(w, http.StatusBadRequest, map[string]string{"error": "buyerTypes are not valid"})
 		return
 	}
 
@@ -339,9 +247,7 @@ func (sm *ServiceManager) PostRecommendationRule(w http.ResponseWriter, r *http.
 		Status:                     req.Status,
 		Name:                       req.Name,
 		OfferingType:               req.OfferingType,
-		Product:                    baseProduct,
 		ProductId:                  req.ProductId,
-		OfferedProduct:             offeredProduct,
 		OfferedProductId:           req.OfferedProductId,
 		DirectAddToCart:            req.DirectAddToCart,
 		StartDatetime:              startDateTime,

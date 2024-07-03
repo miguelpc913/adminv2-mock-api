@@ -9,14 +9,16 @@ type Pagination struct {
 	Limit       int    `json:"limit"`
 	CurrentPage int    `json:"currentPage"`
 	Sort        string `json:"sort"`
+	TotalItems  int64  `json:"totalItems"`
+	Offset      int    `json:"offset"`
 }
 
-func GeneratePaginationFromRequest(r *http.Request) Pagination {
+func ManagePaginationQueries(r *http.Request) Pagination {
 	size := 10
 	page := 1
 	sort := "created_at asc"
-	query := r.URL.Query()
-	for key, value := range query {
+	urlQuery := r.URL.Query()
+	for key, value := range urlQuery {
 		queryValue := value[len(value)-1]
 		switch key {
 		case "size":
@@ -31,6 +33,7 @@ func GeneratePaginationFromRequest(r *http.Request) Pagination {
 		Limit:       size,
 		CurrentPage: page,
 		Sort:        sort,
+		TotalItems:  0,
+		Offset:      (page - 1) * size,
 	}
-
 }

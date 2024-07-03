@@ -11,7 +11,7 @@ import (
 
 func (sm *ServiceManager) GetAffiliateAgreement(w http.ResponseWriter, r *http.Request) {
 	var affiliateAgreements []models.AffiliateAgreement
-	response := helpers.PaginateRequest(r, affiliateAgreements, sm.db, "affiliateAgreements", "status")
+	response := helpers.PaginateRequest(r, affiliateAgreements, sm.db, "affiliateAgreements")
 	helpers.WriteJSON(w, http.StatusOK, response)
 }
 
@@ -115,12 +115,14 @@ func (sm *ServiceManager) PostAffiliateAgreement(w http.ResponseWriter, r *http.
 		helpers.WriteJSON(w, http.StatusBadRequest, map[string]string{"error": "Invalid request"})
 		return
 	}
-	products, err := helpers.GetByIds([]models.Product{}, req.ProductSet, sm.db)
+	products := []models.Product{}
+	err := helpers.GetByIds(&products, req.ProductSet, sm.db)
 	if err != nil {
 		helpers.WriteJSON(w, http.StatusBadRequest, map[string]string{"error": "products are not valid"})
 		return
 	}
-	buyerTypes, err := helpers.GetByIds([]models.BuyerType{}, req.BuyerTypeSet, sm.db)
+	buyerTypes := []models.BuyerType{}
+	err = helpers.GetByIds(&buyerTypes, req.BuyerTypeSet, sm.db)
 	if err != nil {
 		helpers.WriteJSON(w, http.StatusBadRequest, map[string]string{"error": "buyerTypes are not valid"})
 		return

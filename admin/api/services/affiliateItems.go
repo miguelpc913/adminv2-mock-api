@@ -2,7 +2,6 @@ package services
 
 import (
 	"encoding/json"
-	"math"
 	"net/http"
 
 	"github.com/go-chi/chi"
@@ -12,19 +11,9 @@ import (
 	"gorm.io/gorm/clause"
 )
 
-func (serviceManager *ServiceManager) GetAffiliateItems(w http.ResponseWriter, r *http.Request) {
+func (sm *ServiceManager) GetAffiliateItems(w http.ResponseWriter, r *http.Request) {
 	var affiliateItems []models.AffiliateItem
-
-	pagination := helpers.GeneratePaginationFromRequest(r)
-	response := make(map[string]interface{})
-	offset := (pagination.CurrentPage - 1) * pagination.Limit
-	var totalItems int64
-	_ = serviceManager.db.Model(&affiliateItems).Count(&totalItems).Limit(pagination.Limit).Offset(offset).Find(&affiliateItems)
-	response["affiliateItems"] = affiliateItems
-	response["limit"] = pagination.Limit
-	response["currentPage"] = pagination.CurrentPage
-	response["totalPages"] = int(math.Ceil(float64(totalItems) / float64(pagination.Limit)))
-	response["totalItems"] = totalItems
+	response := helpers.PaginateRequest(r, affiliateItems, sm.db, "affiliateItems")
 	helpers.WriteJSON(w, http.StatusOK, response)
 }
 
@@ -46,18 +35,13 @@ func (sm *ServiceManager) PostAffiliateItem(w http.ResponseWriter, r *http.Reque
 		return
 	}
 	products := []models.Product{}
-	//Manage associations
 	if req.ProductSet != nil && len(*req.ProductSet) > 0 {
-		for _, productId := range *req.ProductSet {
-			product := models.Product{}
-			if err := sm.db.First(&product, productId).Error; err != nil {
-				helpers.WriteJSON(w, http.StatusBadRequest, map[string]string{"error": "products are not valid"})
-				return
-			}
-			products = append(products, product)
+		err := helpers.GetByIds(&products, *req.ProductSet, sm.db)
+		if err != nil {
+			helpers.WriteJSON(w, http.StatusBadRequest, map[string]string{"error": "products are not valid"})
+			return
 		}
 	}
-
 	affiliateItem := models.AffiliateItem{
 		Status:        req.Status,
 		ItemName:      req.ItemName,
@@ -75,10 +59,6 @@ func (sm *ServiceManager) PostAffiliateItem(w http.ResponseWriter, r *http.Reque
 	helpers.WriteJSON(w, http.StatusOK, affiliateItem)
 }
 
-type AffiliateItemReqProduct struct {
-	ProductSet *[]int `json:"productSet"`
-}
-
 func (sm *ServiceManager) PutAffiliateItem(w http.ResponseWriter, r *http.Request) {
 	req := &dtoAffiliateItem.AffiliateItemReq{}
 	var affiliateItem models.AffiliateItem
@@ -92,28 +72,17 @@ func (sm *ServiceManager) PutAffiliateItem(w http.ResponseWriter, r *http.Reques
 		helpers.WriteJSON(w, http.StatusBadRequest, map[string]string{"error": "Invalid request"})
 		return
 	}
+	products := []models.Product{}
 	if req.ProductSet != nil && len(*req.ProductSet) > 0 {
-		//Manage associations
-		products := []models.Product{}
-		for _, productId := range *req.ProductSet {
-			product := models.Product{}
-			if err := sm.db.First(&product, productId).Error; err != nil {
-				helpers.WriteJSON(w, http.StatusBadRequest, map[string]string{"error": "products are not valid"})
-				return
-			}
-			products = append(products, product)
+		err := helpers.GetByIds(&products, *req.ProductSet, sm.db)
+		if err != nil {
+			helpers.WriteJSON(w, http.StatusBadRequest, map[string]string{"error": "products are not valid"})
+			return
 		}
 		sm.db.Model(&affiliateItem).Association("ProductSet").Replace(products)
 	}
-	affiliateItemUpdate := models.AffiliateItem{
-		Status:        req.Status,
-		ItemName:      req.ItemName,
-		ItemType:      req.ItemType,
-		ItemLinkedUrl: req.ItemLinkedUrl,
-		ItemResource:  req.ItemResource,
-		IsGeneric:     req.IsGeneric,
-	}
-	err = sm.db.Model(&affiliateItem).Where("affiliate_item_id = ?", id).Select("Status", "ItemName", "ItemType", "ItemLinkedUrl", "ItemResource", "IsGeneric").Updates(affiliateItemUpdate).Error
+	affiliateItemUpdate := helpers.StructToMap(req)
+	err = sm.db.Model(&affiliateItem).Updates(affiliateItemUpdate).Error
 	if err != nil {
 		helpers.WriteJSON(w, http.StatusBadRequest, map[string]string{"error": "Couldn't update"})
 		return

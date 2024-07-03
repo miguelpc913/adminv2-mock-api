@@ -3,53 +3,46 @@ package services
 import (
 	"encoding/json"
 	"errors"
-	"math"
 	"net/http"
-	"strconv"
 	"time"
 
-	"github.com/go-chi/chi"
 	dtoPromotion "github.com/tiqueteo/adminv2-mock-api/api/dto/promotion"
 	"github.com/tiqueteo/adminv2-mock-api/api/helpers"
 	"github.com/tiqueteo/adminv2-mock-api/db/models"
 	"gorm.io/gorm"
-	"gorm.io/gorm/clause"
 )
 
 func (sm *ServiceManager) GetPromotions(w http.ResponseWriter, r *http.Request) {
 	var promotions []models.Promotion
-	pagination := helpers.GeneratePaginationFromRequest(r)
-	response := make(map[string]interface{})
-	offset := (pagination.CurrentPage - 1) * pagination.Limit
-	var totalItems int64
-	sm.db.Preload(clause.Associations).Model(&promotions).Count(&totalItems).Limit(pagination.Limit).Offset(offset).Find(&promotions).Preload(clause.Associations)
-	response["promotions"] = promotions
-	response["limit"] = pagination.Limit
-	response["currentPage"] = pagination.CurrentPage
-	response["totalPages"] = int(math.Ceil(float64(totalItems) / float64(pagination.Limit)))
+	response := helpers.PaginateRequest(r, promotions, sm.db, "promotions")
 	helpers.WriteJSON(w, http.StatusOK, response)
 }
 
 func (sm *ServiceManager) GetPromotionById(w http.ResponseWriter, r *http.Request) {
 	var promotion models.Promotion
-	id := chi.URLParam(r, "id")
-	err := sm.db.Preload(clause.Associations).Find(&promotion, id).Error
+	err := helpers.GetById(&promotion, r, sm.db)
 	if err != nil {
 		helpers.WriteJSON(w, http.StatusNotFound, map[string]string{"error": "There is no promotion with that id"})
 		return
+	} else {
+		helpers.WriteJSON(w, http.StatusOK, promotion)
 	}
-	helpers.WriteJSON(w, http.StatusOK, promotion)
 }
 
 func (sm *ServiceManager) PutPromotionIdentity(w http.ResponseWriter, r *http.Request) {
 	var promotion models.Promotion
 	var req dtoPromotion.PutPromotionIdentity
-	id := chi.URLParam(r, "id")
+	err := helpers.GetById(&promotion, r, sm.db)
+	if err != nil {
+		helpers.WriteJSON(w, http.StatusNotFound, map[string]string{"error": "There is no promotion with that id"})
+		return
+	}
 	if err := json.NewDecoder(r.Body).Decode(&req); err != nil {
 		helpers.WriteJSON(w, http.StatusBadRequest, map[string]string{"error": "Invalid request"})
 		return
 	}
-	err := sm.db.Model(promotion).Where("promotion_id = ?", id).Select("Name", "Status", "ShortName").Updates(req).Error
+	promotionUpdate := helpers.StructToMap(req)
+	err = sm.db.Model(&promotion).Updates(promotionUpdate).Error
 	if err != nil {
 		helpers.WriteJSON(w, http.StatusBadRequest, map[string]string{"error": "Couldn't update"})
 		return
@@ -61,22 +54,16 @@ func (sm *ServiceManager) PutPromotionIdentity(w http.ResponseWriter, r *http.Re
 func (sm *ServiceManager) PutPromotionGeneral(w http.ResponseWriter, r *http.Request) {
 	var promotion models.Promotion
 	var req dtoPromotion.PutPromotionGeneral
-	id := chi.URLParam(r, "id")
+	err := helpers.GetById(&promotion, r, sm.db)
+	if err != nil {
+		helpers.WriteJSON(w, http.StatusNotFound, map[string]string{"error": "There is no promotion with that id"})
+		return
+	}
 	if err := json.NewDecoder(r.Body).Decode(&req); err != nil {
 		helpers.WriteJSON(w, http.StatusBadRequest, map[string]string{"error": "Invalid request"})
 		return
 	}
 	var promotionCodes []models.PromotionalCode
-	promotion_id, err := strconv.Atoi(id)
-	if err != nil {
-		helpers.WriteJSON(w, http.StatusBadRequest, map[string]string{"error": "Incorrect promotion id"})
-		return
-	}
-	err = sm.db.Find(&promotion, promotion_id).Error
-	if err != nil {
-		helpers.WriteJSON(w, http.StatusNotFound, map[string]string{"error": "There is no promotion with that id"})
-		return
-	}
 	if promotion.PromotionType == "promotional_code" {
 		if *promotion.CodeType == "generated" {
 			for i := 0; i < req.NumberOfCodes; i++ {
@@ -93,7 +80,7 @@ func (sm *ServiceManager) PutPromotionGeneral(w http.ResponseWriter, r *http.Req
 				promotionCode := models.PromotionalCode{
 					Code:        promotionCode.Code,
 					Quantity:    promotionCode.Quantity,
-					PromotionId: promotion_id,
+					PromotionId: promotion.PromotionId,
 				}
 				promotionCodes = append(promotionCodes, promotionCode)
 			}
@@ -105,26 +92,39 @@ func (sm *ServiceManager) PutPromotionGeneral(w http.ResponseWriter, r *http.Req
 		}
 		sm.db.Model(&promotion).Association("PromotionalCodeSet").Replace(promotionCodes)
 	}
-	err = sm.db.Model(&promotion).Where("promotion_id = ?", promotion_id).Select("Amount", "Percentage", "LeftPurchased", "RightPaid", "IsPromotionAffiliateEnabled", "HideAmountAtTicket", "ShowOriginalAmountAtTicket", "IsGrouped", "RedeemType", "CodeType", "NumberOfCodes", "CodeLength", "Quantity").Updates(models.Promotion{Amount: &req.Amount, Percentage: &req.Percentage, LeftPurchased: &req.LeftPurchased, RightPaid: &req.RightPaid, IsPromotionAffiliateEnabled: &req.IsPromotionAffiliateEnabled, HideAmountAtTicket: req.HideAmountAtTicket, ShowOriginalAmountAtTicket: req.ShowOriginalAmountAtTicket, IsGrouped: req.IsGrouped, RedeemType: &req.RedeemType, CodeType: &req.CodeType, NumberOfCodes: &req.NumberOfCodes, CodeLength: &req.CodeLength, Quantity: &req.Quantity}).Error
+	promotionUpdate := models.Promotion{
+		Amount:                      &req.Amount,
+		Percentage:                  &req.Percentage,
+		LeftPurchased:               &req.LeftPurchased,
+		RightPaid:                   &req.RightPaid,
+		IsPromotionAffiliateEnabled: &req.IsPromotionAffiliateEnabled,
+		HideAmountAtTicket:          req.HideAmountAtTicket,
+		ShowOriginalAmountAtTicket:  req.ShowOriginalAmountAtTicket,
+		IsGrouped:                   req.IsGrouped,
+		RedeemType:                  &req.RedeemType,
+		CodeType:                    &req.CodeType,
+		NumberOfCodes:               &req.NumberOfCodes,
+		CodeLength:                  &req.CodeLength,
+		Quantity:                    &req.Quantity,
+	}
+	err = sm.db.Model(&promotion).Select("Amount", "Percentage", "LeftPurchased", "RightPaid", "IsPromotionAffiliateEnabled", "HideAmountAtTicket", "ShowOriginalAmountAtTicket", "IsGrouped", "RedeemType", "CodeType", "NumberOfCodes", "CodeLength", "Quantity").Updates(promotionUpdate).Error
 	if err != nil {
 		helpers.WriteJSON(w, http.StatusBadRequest, map[string]string{"error": "Couldn't update"})
 		return
 	}
-
 	helpers.WriteJSON(w, http.StatusOK, promotion)
 }
 
 func (sm *ServiceManager) PutPromotionValidities(w http.ResponseWriter, r *http.Request) {
 	var promotion models.Promotion
 	var req dtoPromotion.PutPromotionValidities
-	id := chi.URLParam(r, "id")
-	if err := json.NewDecoder(r.Body).Decode(&req); err != nil {
-		helpers.WriteJSON(w, http.StatusBadRequest, map[string]string{"error": "Invalid request"})
+	err := helpers.GetById(&promotion, r, sm.db)
+	if err != nil {
+		helpers.WriteJSON(w, http.StatusNotFound, map[string]string{"error": "There is no promotion with that id"})
 		return
 	}
-	err := sm.db.Find(&promotion, id).Error
-	if err != nil {
-		helpers.WriteJSON(w, http.StatusNotFound, map[string]string{"error": "There is not promotion with that id"})
+	if err := json.NewDecoder(r.Body).Decode(&req); err != nil {
+		helpers.WriteJSON(w, http.StatusBadRequest, map[string]string{"error": "Invalid request"})
 		return
 	}
 	startDateTime, err := helpers.ParseDateTime(req.StartDatetime)
@@ -156,7 +156,7 @@ func (sm *ServiceManager) PutPromotionValidities(w http.ResponseWriter, r *http.
 		}
 	}
 
-	promotion = models.Promotion{
+	promotionUpdate := models.Promotion{
 		StartDatetime:         startDateTime,
 		EndDatetime:           endDatetime,
 		StartTime:             &req.StartTime,
@@ -168,7 +168,7 @@ func (sm *ServiceManager) PutPromotionValidities(w http.ResponseWriter, r *http.
 		MaxSecondsBeforeEvent: &req.MaxSecondsBeforeEvent,
 		DisabledDates:         req.DisabledDates,
 	}
-	err = sm.db.Model(promotion).Where("promotion_id = ?", id).Updates(promotion).Error
+	err = sm.db.Model(&promotion).Updates(promotionUpdate).Error
 	if err != nil {
 		helpers.WriteJSON(w, http.StatusBadRequest, map[string]string{"error": "Couldn't update"})
 		return
@@ -180,24 +180,22 @@ func (sm *ServiceManager) PutPromotionValidities(w http.ResponseWriter, r *http.
 func (sm *ServiceManager) PutPromotionAdvancedSettings(w http.ResponseWriter, r *http.Request) {
 	var promotion models.Promotion
 	var req dtoPromotion.PutPromotionAdvancedSettings
-	id := chi.URLParam(r, "id")
+	err := helpers.GetById(&promotion, r, sm.db)
+	if err != nil {
+		helpers.WriteJSON(w, http.StatusNotFound, map[string]string{"error": "There is no promotion with that id"})
+		return
+	}
 	if err := json.NewDecoder(r.Body).Decode(&req); err != nil {
 		helpers.WriteJSON(w, http.StatusBadRequest, map[string]string{"error": "Invalid request"})
 		return
 	}
-	promotion_id, err := strconv.Atoi(id)
-	if err != nil {
-		helpers.WriteJSON(w, http.StatusBadRequest, map[string]string{"error": "Incorrect promotion id"})
-		return
-	}
-	sm.db.First(&promotion, promotion_id)
 	if len(req.PromotionPriceSet) == 0 {
 		sm.db.Model(&promotion).Association("PromotionPriceSet").Clear()
 	} else {
 		var promotionPrices []models.PromotionPrice
 		for _, promotionPrice := range req.PromotionPriceSet {
 			newPromotionPrice := models.PromotionPrice{
-				PromotionId:  promotion_id,
+				PromotionId:  promotion.PromotionId,
 				BuyerTypeId:  promotionPrice.BuyerTypeID,
 				SalesGroupId: promotionPrice.SalesGroupId,
 				Amount:       promotionPrice.Amount,
@@ -217,86 +215,32 @@ func (sm *ServiceManager) PutPromotionAdvancedSettings(w http.ResponseWriter, r 
 
 func (sm *ServiceManager) PutPromotionSalesGroups(w http.ResponseWriter, r *http.Request) {
 	var promotion models.Promotion
-	req := []int{}
-	id := chi.URLParam(r, "id")
-	err := sm.db.Find(&promotion, id).Error
+	err := helpers.UpdateRelation(r, promotion, models.SalesGroup{}, sm.db, "SalesGroupSet")
 	if err != nil {
-		helpers.WriteJSON(w, http.StatusNotFound, map[string]string{"error": "There is no promotion info with that id"})
-		return
+		helpers.WriteJSON(w, http.StatusNotFound, map[string]string{"error": err.Error()})
+	} else {
+		helpers.WriteJSON(w, http.StatusOK, map[string]string{"Success": "Updated properly"})
 	}
-	if err := json.NewDecoder(r.Body).Decode(&req); err != nil {
-		helpers.WriteJSON(w, http.StatusBadRequest, map[string]string{"error": "Invalid request"})
-		return
-	}
-	salesGroups := []models.SalesGroup{}
-	for _, id := range req {
-		salesGroup := models.SalesGroup{}
-		if err := sm.db.First(&salesGroup, id).Error; err != nil {
-			helpers.WriteJSON(w, http.StatusBadRequest, map[string]string{"error": "SalesGroups are not valid"})
-			return
-		}
-		salesGroups = append(salesGroups, salesGroup)
-	}
-
-	sm.db.Model(&promotion).Association("SalesGroupSet").Replace(salesGroups)
-
-	helpers.WriteJSON(w, http.StatusOK, map[string]string{"Success": "Updated properly"})
 }
 
 func (sm *ServiceManager) PutPromotionBuyerTypes(w http.ResponseWriter, r *http.Request) {
 	var promotion models.Promotion
-	req := []int{}
-	id := chi.URLParam(r, "id")
-	err := sm.db.Find(&promotion, id).Error
+	err := helpers.UpdateRelation(r, promotion, models.BuyerType{}, sm.db, "BuyerTypeSet")
 	if err != nil {
-		helpers.WriteJSON(w, http.StatusNotFound, map[string]string{"error": "There is no promotion info with that id"})
-		return
+		helpers.WriteJSON(w, http.StatusNotFound, map[string]string{"error": err.Error()})
+	} else {
+		helpers.WriteJSON(w, http.StatusOK, map[string]string{"Success": "Updated properly"})
 	}
-	if err := json.NewDecoder(r.Body).Decode(&req); err != nil {
-		helpers.WriteJSON(w, http.StatusBadRequest, map[string]string{"error": "Invalid request"})
-		return
-	}
-	buyerTypes := []models.BuyerType{}
-	for _, id := range req {
-		buyerType := models.BuyerType{}
-		if err := sm.db.First(&buyerType, id).Error; err != nil {
-			helpers.WriteJSON(w, http.StatusBadRequest, map[string]string{"error": "BuyerTypes are not valid"})
-			return
-		}
-		buyerTypes = append(buyerTypes, buyerType)
-	}
-
-	sm.db.Model(&promotion).Association("BuyerTypeSet").Replace(buyerTypes)
-
-	helpers.WriteJSON(w, http.StatusOK, map[string]string{"Success": "Updated properly"})
 }
 
 func (sm *ServiceManager) PutPromotionProducts(w http.ResponseWriter, r *http.Request) {
 	var promotion models.Promotion
-	req := []int{}
-	id := chi.URLParam(r, "id")
-	err := sm.db.Find(&promotion, id).Error
+	err := helpers.UpdateRelation(r, promotion, models.Product{}, sm.db, "ProductSet")
 	if err != nil {
-		helpers.WriteJSON(w, http.StatusNotFound, map[string]string{"error": "There is no promotion info with that id"})
-		return
+		helpers.WriteJSON(w, http.StatusNotFound, map[string]string{"error": err.Error()})
+	} else {
+		helpers.WriteJSON(w, http.StatusOK, map[string]string{"Success": "Updated properly"})
 	}
-	if err := json.NewDecoder(r.Body).Decode(&req); err != nil {
-		helpers.WriteJSON(w, http.StatusBadRequest, map[string]string{"error": "Invalid request"})
-		return
-	}
-	products := []models.Product{}
-	for _, id := range req {
-		product := models.Product{}
-		if err := sm.db.First(&product, id).Error; err != nil {
-			helpers.WriteJSON(w, http.StatusBadRequest, map[string]string{"error": "Products are not valid"})
-			return
-		}
-		products = append(products, product)
-	}
-
-	sm.db.Model(&promotion).Association("ProductSet").Replace(products)
-
-	helpers.WriteJSON(w, http.StatusOK, map[string]string{"Success": "Updated properly"})
 }
 
 func (sm *ServiceManager) PostValidateCode(w http.ResponseWriter, r *http.Request) {

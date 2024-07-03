@@ -15,11 +15,9 @@ import (
 
 func (serviceManager *ServiceManager) GetProductInfos(w http.ResponseWriter, r *http.Request) {
 	var productsInformation []models.ProductInfo
-	pagination := helpers.GeneratePaginationFromRequest(r)
+	pagination := helpers.ManagePaginationQueries(r)
 	response := make(map[string]interface{})
-	offset := (pagination.CurrentPage - 1) * pagination.Limit
-	var totalItems int64
-	err := serviceManager.db.Preload("ProductInfoType").Model(&productsInformation).Count(&totalItems).Limit(pagination.Limit).Offset(offset).Find(&productsInformation).Error
+	err := serviceManager.db.Preload("ProductInfoType").Model(&productsInformation).Count(&pagination.TotalItems).Limit(pagination.Limit).Offset(pagination.Offset).Find(&productsInformation).Error
 	if err != nil {
 		helpers.WriteJSON(w, http.StatusInternalServerError, map[string]string{"error": "Error in pagination"})
 		return
@@ -30,8 +28,8 @@ func (serviceManager *ServiceManager) GetProductInfos(w http.ResponseWriter, r *
 	}
 	response["limit"] = pagination.Limit
 	response["currentPage"] = pagination.CurrentPage
-	response["totalPages"] = int(math.Ceil(float64(totalItems) / float64(pagination.Limit)))
-	response["totalItems"] = totalItems
+	response["totalPages"] = int(math.Ceil(float64(pagination.TotalItems) / float64(pagination.Limit)))
+	response["totalItems"] = pagination.TotalItems
 	response["productInfos"] = productsInformation
 	helpers.WriteJSON(w, http.StatusOK, response)
 }

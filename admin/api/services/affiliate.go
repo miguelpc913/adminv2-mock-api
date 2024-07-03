@@ -12,7 +12,7 @@ import (
 
 func (sm *ServiceManager) GetAffiliates(w http.ResponseWriter, r *http.Request) {
 	var affiliates []models.Affiliate
-	response := helpers.PaginateRequest(r, affiliates, sm.db, "affiliates", "status")
+	response := helpers.PaginateRequest(r, affiliates, sm.db, "affiliates")
 	helpers.WriteJSON(w, http.StatusOK, response)
 }
 

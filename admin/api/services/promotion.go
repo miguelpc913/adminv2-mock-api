@@ -168,7 +168,11 @@ func (sm *ServiceManager) PutPromotionValidities(w http.ResponseWriter, r *http.
 		MaxSecondsBeforeEvent: &req.MaxSecondsBeforeEvent,
 		DisabledDates:         req.DisabledDates,
 	}
-	err = sm.db.Model(&promotion).Updates(promotionUpdate).Error
+	err = sm.db.Model(&promotion).
+		Select("StartDatetime", "EndDatetime", "StartTime", "EventStartDatetime",
+			"EventEndDatetime", "WeekDay", "MinSecondsBeforeEvent",
+			"MaxSecondsBeforeEvent", "DisabledDates").
+		Updates(promotionUpdate).Error
 	if err != nil {
 		helpers.WriteJSON(w, http.StatusBadRequest, map[string]string{"error": "Couldn't update"})
 		return

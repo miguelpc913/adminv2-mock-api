@@ -80,6 +80,11 @@ func SeedEntities(db *gorm.DB) {
 		entityEmptyMap["BoxOffice"] = true
 	}
 
+	if (isEntityEmpty(db, &models.MainPricing{}) && isEntityEmpty(db, &models.SpecificPricing{}) && isEntityEmpty(db, &models.ProductVenueBuyerTypes{}) && isEntityEmpty(db, &models.ProductExtraBuyerTypes{})) {
+		seeds.SeedBoxOffice(db)
+		entityEmptyMap["Pricings"] = true
+	}
+
 	// Seed associations
 	if entityEmptyMap["SalesGroup"] {
 		seeds.SeedSalesGroupsAssociations(db)
@@ -110,6 +115,9 @@ func SeedEntities(db *gorm.DB) {
 	if entityEmptyMap["BoxOffice"] {
 		seeds.SeedBoxOfficeAssociations(db)
 		seeds.SeedBoxOfficeLanguages(db)
+	}
+	if entityEmptyMap["Pricings"] {
+		seeds.SeedMainPricing(db)
 	}
 
 }

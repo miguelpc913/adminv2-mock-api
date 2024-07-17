@@ -26,4 +26,8 @@ func MigrateModels(db *gorm.DB) {
 	db.AutoMigrate(&models.BoxOffice{})
 	db.AutoMigrate(&models.AllowedAppLanguages{})
 	db.AutoMigrate(&models.AllowedTicketLanguages{})
+	db.AutoMigrate(&models.ProductExtraBuyerTypes{})
+	db.AutoMigrate(&models.ProductVenueBuyerTypes{})
+	db.AutoMigrate(&models.SpecificPricing{})
+	db.AutoMigrate(&models.MainPricing{})
 }

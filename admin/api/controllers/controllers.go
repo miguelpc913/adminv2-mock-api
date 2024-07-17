@@ -161,5 +161,10 @@ func Init(db *gorm.DB) *chi.Mux {
 		r.Put("/{id}/salesGroups", sm.PutBOSalesGroups)
 		r.Put("/{id}/products", sm.PutBOProducts)
 	})
+	r.Route("/pricings", func(r chi.Router) {
+		r.Use(AdminMiddleware.CheckJTW)
+		r.Get("/", sm.GetPricings)
+		r.Put("/", sm.PutPricings)
+	})
 	return r
 }

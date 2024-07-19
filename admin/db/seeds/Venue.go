@@ -10,19 +10,24 @@ import (
 func SeedVenues(db *gorm.DB) {
 	venues := []models.Venue{
 		{
-			Name: `{ "es": "Visita Libre", "en": "Self Guided Tour" }`,
+			VenueId: 1,
+			Name:    "Conference Hall A",
 		},
 		{
-			Name: `{ "es": "Guiada Español", "en": "Guided Spanish" }`,
+			VenueId: 2,
+			Name:    "Main Auditorium",
 		},
 		{
-			Name: "Riverside Convention Hall",
+			VenueId: 3,
+			Name:    "Outdoor Amphitheater",
 		},
 		{
-			Name: `{ "es": "Guiada Inglés", "en": "English Guided" }`,
+			VenueId: 4,
+			Name:    "Banquet Room B",
 		},
 		{
-			Name: `{ "es": "Open Libre", "en": "Open" }`,
+			VenueId: 5,
+			Name:    "Exhibition Center",
 		},
 	}
 

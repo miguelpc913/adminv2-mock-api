@@ -13,6 +13,7 @@ func MigrateModels(db *gorm.DB) {
 	db.AutoMigrate(&models.SalesGroupHtml{})
 	db.AutoMigrate(&models.Verifier{})
 	db.AutoMigrate(&models.PaymentMethod{})
+	db.AutoMigrate(&models.VenueCapacity{})
 	db.AutoMigrate(&models.Venue{})
 	db.AutoMigrate(&models.ProductInfo{})
 	db.AutoMigrate(&models.ProductInfoType{})

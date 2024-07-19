@@ -10,7 +10,7 @@ func SeedProductInfoAssociations(db *gorm.DB) {
 	var productsInfo []models.ProductInfo
 	var salesGroups []models.SalesGroup
 	var products []models.Product
-	var venues []models.Venue
+	var venues []models.VenueCapacity
 	db.Find(&products)
 	db.Find(&salesGroups)
 	db.Find(&venues)

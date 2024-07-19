@@ -39,9 +39,13 @@ func SeedEntities(db *gorm.DB) {
 		seeds.SeedSalesGroupHtml(db)
 		entityEmptyMap["SalesGroupHtml"] = true
 	}
+	if isEntityEmpty(db, &models.VenueCapacity{}) {
+		seeds.SeedVenueCapacities(db)
+		entityEmptyMap["VenueCapacity"] = true
+	}
 	if isEntityEmpty(db, &models.Venue{}) {
 		seeds.SeedVenues(db)
-		entityEmptyMap["Venue"] = true
+		entityEmptyMap["Venues"] = true
 	}
 	if isEntityEmpty(db, &models.SalesGroup{}) {
 		seeds.SeedSalesGroups(db)

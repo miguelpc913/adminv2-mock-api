@@ -198,9 +198,9 @@ func (sm *ServiceManager) PutProductInfoVenue(w http.ResponseWriter, r *http.Req
 		helpers.WriteJSON(w, http.StatusBadRequest, map[string]string{"error": "Invalid request"})
 		return
 	}
-	venues := []models.Venue{}
+	venues := []models.VenueCapacity{}
 	for _, id := range req {
-		venue := models.Venue{}
+		venue := models.VenueCapacity{}
 		if err := sm.db.First(&venue, id).Error; err != nil {
 			helpers.WriteJSON(w, http.StatusBadRequest, map[string]string{"error": "Products are not valid"})
 			return
@@ -267,9 +267,9 @@ func (sm *ServiceManager) PostProductInfos(w http.ResponseWriter, r *http.Reques
 		products = append(products, product)
 	}
 
-	venues := []models.Venue{}
+	venues := []models.VenueCapacity{}
 	for _, id := range infoReq.VenueSet {
-		venue := models.Venue{}
+		venue := models.VenueCapacity{}
 		if err := sm.db.First(&venue, id).Error; err != nil {
 			helpers.WriteJSON(w, http.StatusBadRequest, map[string]string{"error": "Venues are not valid"})
 			return

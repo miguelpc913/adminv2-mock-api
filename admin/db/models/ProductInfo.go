@@ -26,5 +26,5 @@ type ProductInfo struct {
 	DeletedAt         gorm.DeletedAt               `json:"-"`
 	SalesGroupSet     []SalesGroup                 `json:"salesGroupSet" gorm:"many2many:productinfo_salesgroups;"`
 	ProductSet        []Product                    `json:"productSet" gorm:"many2many:productinfo_products;"`
-	VenueSet          []Venue                      `json:"venueSet" gorm:"many2many:productinfo_venue;"`
+	VenueSet          []VenueCapacity              `json:"venueSet" gorm:"many2many:productinfo_venue;"`
 }

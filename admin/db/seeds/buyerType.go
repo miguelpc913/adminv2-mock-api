@@ -79,8 +79,36 @@ func SeedBuyerType(db *gorm.DB) {
 			RequiredPdaSoundAlert: false,
 			AlertSound:            "none",
 		},
+		{
+			Name:                  `{"en": "Corporate", "es": "Corporativo", "ca": "Corporatiu"}`,
+			ShortName:             "CORP",
+			Description:           `{"en": "Corporate buyer type", "es": "Tipo de comprador corporativo", "ca": "Tipus de comprador corporatiu"}`,
+			Status:                true,
+			DiscountRate:          0.25,
+			DiscountAmount:        20.00,
+			NoHandleAvailability:  true,
+			Pax:                   500,
+			RequiredPdaColorAlert: true,
+			AlertColor:            "green",
+			RequiredPdaSoundAlert: true,
+			AlertSound:            "chime",
+		},
+		{
+			Name:                  `{"en": "VIP", "es": "VIP", "ca": "VIP"}`,
+			ShortName:             "VIP",
+			Description:           `{"en": "VIP buyer type", "es": "Tipo de comprador VIP", "ca": "Tipus de comprador VIP"}`,
+			Status:                true,
+			DiscountRate:          0.30,
+			DiscountAmount:        25.00,
+			NoHandleAvailability:  true,
+			Pax:                   10,
+			RequiredPdaColorAlert: true,
+			AlertColor:            "gold",
+			RequiredPdaSoundAlert: true,
+			AlertSound:            "fanfare",
+		},
 	}
-	result := db.Create(buyerTypes)
+	result := db.Create(&buyerTypes)
 	if result.Error != nil {
 		fmt.Print("There has been an error in the seed of buyer type")
 	}

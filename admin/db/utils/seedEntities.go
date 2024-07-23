@@ -83,7 +83,10 @@ func SeedEntities(db *gorm.DB) {
 		seeds.SeedBoxOffice(db)
 		entityEmptyMap["BoxOffice"] = true
 	}
-
+	if (isEntityEmpty(db, &models.Extra{}) && isEntityEmpty(db, &models.Tax{})) {
+		seeds.SeedExtra(db)
+		entityEmptyMap["Extra"] = true
+	}
 	if (isEntityEmpty(db, &models.MainPricing{}) && isEntityEmpty(db, &models.SpecificPricing{}) && isEntityEmpty(db, &models.ProductVenueBuyerTypes{}) && isEntityEmpty(db, &models.ProductExtraBuyerTypes{})) {
 		seeds.SeedBoxOffice(db)
 		entityEmptyMap["Pricings"] = true

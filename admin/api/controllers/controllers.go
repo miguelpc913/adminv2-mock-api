@@ -100,6 +100,10 @@ func Init() *chi.Mux {
 		r.Use(AdminMiddleware.CheckJTW)
 		r.Get("/", sm.GetBuyerTypes)
 	})
+	r.Route("/extras", func(r chi.Router) {
+		r.Use(AdminMiddleware.CheckJTW)
+		r.Get("/", sm.GetExtras)
+	})
 	r.Route("/productTags", func(r chi.Router) {
 		r.Use(AdminMiddleware.CheckJTW)
 		r.Get("/", sm.GetProductTags)

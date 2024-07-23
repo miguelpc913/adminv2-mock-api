@@ -12,7 +12,9 @@
   "shell": {
     "init_hook": [
       "export PS1='📦 devbox> '",
-      "echo 'Welcome to devbox!' > /dev/null"
+      "echo 'Welcome to devbox!' > /dev/null",
+      "OSH_THEME=purity",
+      "source ~/.bashrc"
     ],
     "scripts": {
       "start_db": "mysqld &",

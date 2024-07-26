@@ -5,6 +5,7 @@ import (
 	"errors"
 	"fmt"
 	"net/http"
+	"time"
 
 	dto "github.com/tiqueteo/adminv2-mock-api/api/dto/pricings"
 	"github.com/tiqueteo/adminv2-mock-api/api/helpers"
@@ -36,16 +37,15 @@ func (sm *ServiceManager) PutPricings(w http.ResponseWriter, r *http.Request) {
 func createUpdateMainPricing(req []dto.PricingDTO, sm *ServiceManager) error {
 	for index, pricingReq := range req {
 		pricing := models.MainPricing{}
-		startDateTime, err := helpers.ParseDateTime(pricingReq.StartDatetime)
+		_, err := time.Parse("2006-01-02T00:00:00Z", pricingReq.StartDatetime)
 		if err != nil {
 			return err
 		}
-		endDatetime, err := helpers.ParseDateTime(pricingReq.EndDatetime)
+		_, err = time.Parse("2006-01-02T15:04:05Z", pricingReq.StartDatetime)
 		if err != nil {
 			return err
 		}
-		startDateTimeDb := startDateTime.Format("2006-01-02T00:00:00Z")
-		endDateTimeDb := endDatetime.Format("2006-01-02T15:04:05Z")
+
 		if errors.Is(err, gorm.ErrRecordNotFound) || pricingReq.MainPricingId == nil {
 			if index > 0 {
 				prevMainPricing := models.MainPricing{}
@@ -57,8 +57,8 @@ func createUpdateMainPricing(req []dto.PricingDTO, sm *ServiceManager) error {
 					return err
 				}
 				pricingUpdate := models.MainPricing{
-					StartDatetime: startDateTimeDb,
-					EndDateTime:   endDateTimeDb,
+					StartDatetime: pricingReq.StartDatetime,
+					EndDateTime:   pricingReq.EndDatetime,
 					ProductId:     prevMainPricing.ProductId,
 				}
 				err = sm.db.Create(&pricingUpdate).Error
@@ -73,11 +73,11 @@ func createUpdateMainPricing(req []dto.PricingDTO, sm *ServiceManager) error {
 		} else if pricingReq.MainPricingId != nil {
 			// err = sm.db.Model(&pricing).Where("start_datetime = ?", startDateTimeDb).Where("end_date_time = ?", endDateTimeDb).Find(&pricing).Error
 			pricingUpdate := models.MainPricing{
-				StartDatetime: startDateTimeDb,
-				EndDateTime:   endDateTimeDb,
+				StartDatetime: pricingReq.StartDatetime,
+				EndDateTime:   pricingReq.EndDatetime,
 			}
 			mainPricingId := *pricingReq.MainPricingId
-			err = sm.db.Model(&pricing).Preload(clause.Associations).Where("main_pricing_id = ?", mainPricingId).Find(&pricing).Error
+			err = sm.db.Model(&pricing).Find(&pricing, mainPricingId).Error
 			if err != nil {
 				return err
 			}
@@ -158,105 +158,103 @@ func createBaseSpecificPricing(pricing models.MainPricing, prevMainPricing model
 
 func createUpdateSpecificPricing(pricing models.MainPricing, reqItem dto.PricingDTO, sm *ServiceManager) error {
 	for index, specificPricingReq := range reqItem.Pricings {
-		if !specificPricingReq.Default {
-			if specificPricingReq.PricingId != nil {
-				specificPricing := models.SpecificPricing{}
-				specificPricingUpdate := models.SpecificPricing{
-					Name:         specificPricingReq.Name,
-					Priority:     specificPricingReq.Priority,
-					Weekdays:     specificPricingReq.WeekDays,
-					EnabledDates: specificPricingReq.EnabledDates,
+		if specificPricingReq.PricingId != nil {
+			specificPricing := models.SpecificPricing{}
+			specificPricingUpdate := models.SpecificPricing{
+				Name:         specificPricingReq.Name,
+				Priority:     specificPricingReq.Priority,
+				Weekdays:     specificPricingReq.WeekDays,
+				EnabledDates: specificPricingReq.EnabledDates,
+			}
+			pricingId := *specificPricingReq.PricingId
+			err := sm.db.Model(&specificPricing).Preload(clause.Associations).Find(&specificPricing, pricingId).Error
+			if err != nil {
+				return err
+			}
+			err = sm.db.Model(&specificPricing).Updates(specificPricingUpdate).Error
+			if err != nil {
+				return err
+			}
+			for _, venueReq := range specificPricingReq.ProductVenueBuyerTypes {
+				venue := models.ProductVenueBuyerTypes{}
+				venueUpdate := models.ProductVenueBuyerTypes{
+					Price: venueReq.Price,
 				}
-				pricingId := *specificPricingReq.PricingId
-				err := sm.db.Model(&specificPricing).Preload(clause.Associations).Find(&specificPricing, pricingId).Error
+				err := sm.db.Model(&venue).Find(&venue, venueReq.ProductVenueBuyerTypeId).Error
 				if err != nil {
 					return err
 				}
-				err = sm.db.Model(&specificPricing).Updates(specificPricingUpdate).Error
+				err = sm.db.Model(&venue).Updates(venueUpdate).Error
 				if err != nil {
 					return err
 				}
-				for _, venueReq := range specificPricingReq.ProductVenueBuyerTypes {
-					venue := models.ProductVenueBuyerTypes{}
-					venueUpdate := models.ProductVenueBuyerTypes{
-						Price: venueReq.Price,
-					}
-					err := sm.db.Model(&venue).Find(&venue, venueReq.ProductVenueBuyerTypeId).Error
-					if err != nil {
-						return err
-					}
-					err = sm.db.Model(&venue).Updates(venueUpdate).Error
-					if err != nil {
-						return err
-					}
+			}
+			for _, extraReq := range specificPricingReq.ProductExtraBuyerTypes {
+				extra := models.ProductExtraBuyerTypes{}
+				extraUpdate := models.ProductExtraBuyerTypes{
+					Price: extraReq.Price,
 				}
-				for _, extraReq := range specificPricingReq.ProductExtraBuyerTypes {
-					extra := models.ProductExtraBuyerTypes{}
-					extraUpdate := models.ProductExtraBuyerTypes{
-						Price: extraReq.Price,
-					}
-					err := sm.db.Model(&extra).Find(&extra, extraReq.ProductExtraBuyerTypeId).Error
-					if err != nil {
-						return err
-					}
-					err = sm.db.Model(&extra).Updates(extraUpdate).Error
-					if err != nil {
-						return err
-					}
-				}
-			} else {
-				fmt.Println(specificPricingReq)
-				newSpecificPricing := models.SpecificPricing{
-					Name:          specificPricingReq.Name,
-					Priority:      specificPricingReq.Priority,
-					Weekdays:      specificPricingReq.WeekDays,
-					EnabledDates:  specificPricingReq.EnabledDates,
-					MainPricingId: pricing.MainPricingId,
-				}
-				err := sm.db.Create(&newSpecificPricing).Error
+				err := sm.db.Model(&extra).Find(&extra, extraReq.ProductExtraBuyerTypeId).Error
 				if err != nil {
 					return err
 				}
-				if index > 0 {
-					prevPricingReq := reqItem.Pricings[0]
-					prevPricing := models.SpecificPricing{}
-					err := sm.db.Model(&prevPricing).Preload(clause.Associations).Where("pricing_id = ?", *prevPricingReq.PricingId).Find(&prevPricing).Error
-					if err != nil {
-						return err
+				err = sm.db.Model(&extra).Updates(extraUpdate).Error
+				if err != nil {
+					return err
+				}
+			}
+		} else {
+			fmt.Println(specificPricingReq)
+			newSpecificPricing := models.SpecificPricing{
+				Name:          specificPricingReq.Name,
+				Priority:      specificPricingReq.Priority,
+				Weekdays:      specificPricingReq.WeekDays,
+				EnabledDates:  specificPricingReq.EnabledDates,
+				MainPricingId: pricing.MainPricingId,
+			}
+			err := sm.db.Create(&newSpecificPricing).Error
+			if err != nil {
+				return err
+			}
+			if index > 0 {
+				prevPricingReq := reqItem.Pricings[0]
+				prevPricing := models.SpecificPricing{}
+				err := sm.db.Model(&prevPricing).Preload(clause.Associations).Where("pricing_id = ?", *prevPricingReq.PricingId).Find(&prevPricing).Error
+				if err != nil {
+					return err
+				}
+				newProductExtraBuyerTypes := []models.ProductExtraBuyerTypes{}
+				fmt.Println(pricing.ProductId)
+				for _, prevProductExtraBuyerType := range prevPricing.ProductExtraBuyerTypes {
+					newProductExtraBuyerType := models.ProductExtraBuyerTypes{
+						ProductId:   pricing.ProductId,
+						ExtraId:     prevProductExtraBuyerType.ExtraId,
+						PricingId:   newSpecificPricing.PricingId,
+						BuyerTypeId: prevProductExtraBuyerType.BuyerTypeId,
+						Price:       prevProductExtraBuyerType.Price,
+						HasDiscount: prevProductExtraBuyerType.HasDiscount,
 					}
-					newProductExtraBuyerTypes := []models.ProductExtraBuyerTypes{}
-					fmt.Println(pricing.ProductId)
-					for _, prevProductExtraBuyerType := range prevPricing.ProductExtraBuyerTypes {
-						newProductExtraBuyerType := models.ProductExtraBuyerTypes{
-							ProductId:   pricing.ProductId,
-							ExtraId:     prevProductExtraBuyerType.ExtraId,
-							PricingId:   newSpecificPricing.PricingId,
-							BuyerTypeId: prevProductExtraBuyerType.BuyerTypeId,
-							Price:       prevProductExtraBuyerType.Price,
-							HasDiscount: prevProductExtraBuyerType.HasDiscount,
-						}
-						newProductExtraBuyerTypes = append(newProductExtraBuyerTypes, newProductExtraBuyerType)
+					newProductExtraBuyerTypes = append(newProductExtraBuyerTypes, newProductExtraBuyerType)
+				}
+				err = sm.db.Create(&newProductExtraBuyerTypes).Error
+				if err != nil {
+					return err
+				}
+				newProductVenueBuyerTypes := []models.ProductVenueBuyerTypes{}
+				for _, prevVenueExtraBuyerType := range prevPricing.ProductVenueBuyerTypes {
+					newProductVenueBuyerType := models.ProductVenueBuyerTypes{
+						ProductId:   pricing.ProductId,
+						VenueId:     prevVenueExtraBuyerType.VenueId,
+						PricingId:   newSpecificPricing.PricingId,
+						BuyerTypeId: prevVenueExtraBuyerType.BuyerTypeId,
+						Price:       prevVenueExtraBuyerType.Price,
+						HasDiscount: prevVenueExtraBuyerType.HasDiscount,
 					}
-					err = sm.db.Create(&newProductExtraBuyerTypes).Error
-					if err != nil {
-						return err
-					}
-					newProductVenueBuyerTypes := []models.ProductVenueBuyerTypes{}
-					for _, prevVenueExtraBuyerType := range prevPricing.ProductVenueBuyerTypes {
-						newProductVenueBuyerType := models.ProductVenueBuyerTypes{
-							ProductId:   pricing.ProductId,
-							VenueId:     prevVenueExtraBuyerType.VenueId,
-							PricingId:   newSpecificPricing.PricingId,
-							BuyerTypeId: prevVenueExtraBuyerType.BuyerTypeId,
-							Price:       prevVenueExtraBuyerType.Price,
-							HasDiscount: prevVenueExtraBuyerType.HasDiscount,
-						}
-						newProductVenueBuyerTypes = append(newProductVenueBuyerTypes, newProductVenueBuyerType)
-					}
-					err = sm.db.Create(&newProductVenueBuyerTypes).Error
-					if err != nil {
-						return err
-					}
+					newProductVenueBuyerTypes = append(newProductVenueBuyerTypes, newProductVenueBuyerType)
+				}
+				err = sm.db.Create(&newProductVenueBuyerTypes).Error
+				if err != nil {
+					return err
 				}
 			}
 		}

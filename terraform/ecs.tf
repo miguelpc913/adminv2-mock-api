@@ -17,13 +17,15 @@ resource "aws_lb_target_group" "adminv2_lb" {
 }
 
 resource "aws_ecs_service" "adminmockapi" {
-  name                = "admin-mock-api"
-  cluster             = data.aws_ecs_cluster.ecs-qa.id
-  launch_type         = "EC2"
-  task_definition     = data.aws_ecs_task_definition.admin_task.arn 
-  desired_count       = 1
-  iam_role            = data.aws_iam_role.ecs_role.arn
-  scheduling_strategy = "REPLICA"
+  name                               = "admin-mock-api"
+  cluster                            = data.aws_ecs_cluster.ecs-qa.id
+  launch_type                        = "EC2"
+  task_definition                    = data.aws_ecs_task_definition.admin_task.arn
+  desired_count                      = 1
+  iam_role                           = data.aws_iam_role.ecs_role.arn
+  scheduling_strategy                = "REPLICA"
+  deployment_maximum_percent         = 100
+  deployment_minimum_healthy_percent = 0
 
   ordered_placement_strategy {
     type  = "spread"
@@ -41,10 +43,6 @@ resource "aws_ecs_service" "adminmockapi" {
     container_port   = 8080
   }
 
-  placement_constraints {
-    type       = "memberOf"
-    expression = "attribute:ecs.availability-zone in [eu-west-1a, eu-west-1b]"
-  }
   depends_on = [
     data.aws_iam_role.ecs_role,
     aws_lb_target_group.adminv2_lb

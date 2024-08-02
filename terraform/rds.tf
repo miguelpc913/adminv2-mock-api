@@ -8,11 +8,11 @@ module "db" {
   instance_class    = "db.t3.small"
   allocated_storage = 20
 
-  db_name  = var.db_name
-  username = "admin"
-  password = var.db_pass
+  db_name                     = var.db_name
+  username                    = "admin"
+  password                    = var.db_pass
   manage_master_user_password = false
-  port = "3306"
+  port                        = "3306"
 
   iam_database_authentication_enabled = false
 

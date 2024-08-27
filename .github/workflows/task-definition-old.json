@@ -12,14 +12,6 @@
                     "protocol": "tcp"
                 }
             ],
-            "logConfiguration": {
-                "logDriver": "awslogs",
-                "options": {
-                  "awslogs-group": "ECS-CW-Containers",
-                  "awslogs-region": "eu-west-1",
-                  "awslogs-stream-prefix": "qa-adminv2-mock"
-                }
-            },
             "essential": true,
             "environment": [],
             "mountPoints": [],
@@ -29,3 +21,4 @@
     ],
     "family": "admin-mock-api"
 }
+

@@ -38,3 +38,9 @@ variable "health_check" {
     "healthy_threshold"   = "4"
   }
 }
+
+variable "retention_in_days" {
+  type        = number
+  default     = "7"
+  description = "Retention period for CloudWatch logs (in days)"
+}

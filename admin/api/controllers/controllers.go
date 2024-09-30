@@ -8,7 +8,6 @@ import (
 	"github.com/go-chi/chi"
 	"github.com/go-chi/chi/middleware"
 	"github.com/go-chi/cors"
-	"github.com/tiqueteo/adminv2-mock-api/api/helpers"
 	AdminMiddleware "github.com/tiqueteo/adminv2-mock-api/api/middleware"
 	"github.com/tiqueteo/adminv2-mock-api/api/services"
 	dbHelpers "github.com/tiqueteo/adminv2-mock-api/db/utils"
@@ -54,29 +53,6 @@ func Init() *chi.Mux {
 
 	r.HandleFunc("/health", func(w http.ResponseWriter, r *http.Request) {
 		fmt.Fprint(w, "Hello, Go!")
-	})
-	r.Route("/restartDb", func(r chi.Router) {
-		r.Use(AdminMiddleware.CheckJTW)
-		r.Post("/", func(w http.ResponseWriter, r *http.Request) {
-			tx := db.Exec("DROP DATABASE admin_dev;")
-			if tx.Error != nil {
-				helpers.WriteJSON(w, http.StatusInternalServerError, map[string]string{"error": tx.Error.Error()})
-				return
-			}
-			tx = db.Exec("CREATE DATABASE admin_dev;")
-			if tx.Error != nil {
-				helpers.WriteJSON(w, http.StatusInternalServerError, map[string]string{"error": tx.Error.Error()})
-				return
-			}
-			newDb, err := dbHelpers.InitDB(true)
-			if err != nil {
-				helpers.WriteJSON(w, http.StatusInternalServerError, map[string]string{"error": err.Error()})
-				return
-			}
-			*db = *newDb
-			*sm = *services.NewServiceManager(db)
-			helpers.WriteJSON(w, http.StatusOK, map[string]string{"success": "Db has been restarted"})
-		})
 	})
 
 	r.Post("/login", sm.Login)
@@ -199,5 +175,30 @@ func Init() *chi.Mux {
 		r.Get("/", sm.GetPricings)
 		r.Put("/", sm.PutPricings)
 	})
+
+	// r.Route("/restartDb", func(r chi.Router) {
+	// 	r.Use(AdminMiddleware.CheckJTW)
+	// 	r.Post("/", func(w http.ResponseWriter, r *http.Request) {
+	// 		tx := db.Exec("DROP DATABASE admin_dev;")
+	// 		if tx.Error != nil {
+	// 			helpers.WriteJSON(w, http.StatusInternalServerError, map[string]string{"error": tx.Error.Error()})
+	// 			return
+	// 		}
+	// 		tx = db.Exec("CREATE DATABASE admin_dev;")
+	// 		if tx.Error != nil {
+	// 			helpers.WriteJSON(w, http.StatusInternalServerError, map[string]string{"error": tx.Error.Error()})
+	// 			return
+	// 		}
+	// 		newDb, err := dbHelpers.InitDB(true)
+	// 		if err != nil {
+	// 			helpers.WriteJSON(w, http.StatusInternalServerError, map[string]string{"error": err.Error()})
+	// 			return
+	// 		}
+	// 		*db = *newDb
+	// 		*sm = *services.NewServiceManager(db)
+	// 		helpers.WriteJSON(w, http.StatusOK, map[string]string{"success": "Db has been restarted"})
+	// 	})
+	// })
+
 	return r
 }

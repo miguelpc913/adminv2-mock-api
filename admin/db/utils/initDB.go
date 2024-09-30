@@ -6,13 +6,15 @@ import (
 	"gorm.io/gorm"
 )
 
-func InitDB() (db *gorm.DB, err error) {
+func InitDB(shouldSeed bool) (db *gorm.DB, err error) {
 	db, err = ConnectDb()
 	if err != nil {
 		return nil, err
 	}
 	MigrateModels(db)
-	SeedEntities(db)
+	if shouldSeed {
+		SeedEntities(db)
+	}
 	fmt.Println("Successfully connected!", db)
 	return db, nil
 }

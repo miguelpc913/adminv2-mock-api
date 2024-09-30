@@ -38,7 +38,7 @@ func AllowOriginFunc(r *http.Request, origin string) bool {
 }
 
 func Init() *chi.Mux {
-	db, _ := dbHelpers.InitDB()
+	db, _ := dbHelpers.InitDB(false)
 	r := chi.NewRouter()
 	r.Use(middleware.Logger)
 	sm := services.NewServiceManager(db)
@@ -68,7 +68,7 @@ func Init() *chi.Mux {
 				helpers.WriteJSON(w, http.StatusInternalServerError, map[string]string{"error": tx.Error.Error()})
 				return
 			}
-			newDb, err := dbHelpers.InitDB()
+			newDb, err := dbHelpers.InitDB(true)
 			if err != nil {
 				helpers.WriteJSON(w, http.StatusInternalServerError, map[string]string{"error": err.Error()})
 				return

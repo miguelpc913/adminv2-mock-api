@@ -2,7 +2,6 @@ package services
 
 import (
 	"encoding/json"
-	"fmt"
 	"net/http"
 	"os"
 	"time"
@@ -18,7 +17,6 @@ func (sm *ServiceManager) Login(w http.ResponseWriter, r *http.Request) {
 		helpers.WriteJSON(w, http.StatusBadRequest, map[string]string{"error": "Invalid request"})
 		return
 	}
-	fmt.Println(loginReq.UserName)
 	if loginReq.UserName != "adminV2@clorian.com" {
 		helpers.WriteJSON(w, http.StatusBadRequest, map[string]string{"error": "Wrong auth email"})
 		return

@@ -58,38 +58,47 @@ func Init() *chi.Mux {
 	r.Post("/login", sm.Login)
 	r.Route("/products", func(r chi.Router) {
 		r.Use(AdminMiddleware.CheckJTW)
+		r.Use(AdminMiddleware.RecoverMiddleware)
 		r.Get("/", sm.GetProducts)
 	})
 	r.Route("/venueCapacities", func(r chi.Router) {
 		r.Use(AdminMiddleware.CheckJTW)
+		r.Use(AdminMiddleware.RecoverMiddleware)
 		r.Get("/", sm.GetVenueCapacities)
 	})
 	r.Route("/venues", func(r chi.Router) {
 		r.Use(AdminMiddleware.CheckJTW)
+		r.Use(AdminMiddleware.RecoverMiddleware)
 		r.Get("/", sm.GetVenues)
 	})
 	r.Route("/salesGroups", func(r chi.Router) {
 		r.Use(AdminMiddleware.CheckJTW)
+		r.Use(AdminMiddleware.RecoverMiddleware)
 		r.Get("/", sm.GetSalesGroups)
 	})
 	r.Route("/buyerTypes", func(r chi.Router) {
 		r.Use(AdminMiddleware.CheckJTW)
+		r.Use(AdminMiddleware.RecoverMiddleware)
 		r.Get("/", sm.GetBuyerTypes)
 	})
 	r.Route("/extras", func(r chi.Router) {
 		r.Use(AdminMiddleware.CheckJTW)
+		r.Use(AdminMiddleware.RecoverMiddleware)
 		r.Get("/", sm.GetExtras)
 	})
 	r.Route("/productTags", func(r chi.Router) {
 		r.Use(AdminMiddleware.CheckJTW)
+		r.Use(AdminMiddleware.RecoverMiddleware)
 		r.Get("/", sm.GetProductTags)
 	})
 	r.Route("/verifiers", func(r chi.Router) {
 		r.Use(AdminMiddleware.CheckJTW)
+		r.Use(AdminMiddleware.RecoverMiddleware)
 		r.Get("/", sm.GetVerifiers)
 	})
 	r.Route("/productInfos", func(r chi.Router) {
 		r.Use(AdminMiddleware.CheckJTW)
+		r.Use(AdminMiddleware.RecoverMiddleware)
 		r.Get("/", sm.GetProductInfos)
 		r.Get("/{id}", sm.GetProductInfoById)
 		r.Put("/{id}/identity", sm.PutProductInfoIdentity)
@@ -103,6 +112,7 @@ func Init() *chi.Mux {
 	})
 	r.Route("/recommendationRules", func(r chi.Router) {
 		r.Use(AdminMiddleware.CheckJTW)
+		r.Use(AdminMiddleware.RecoverMiddleware)
 		r.Get("/", sm.GetRecommendationRules)
 		r.Post("/", sm.PostRecommendationRule)
 		r.Get("/{id}", sm.GetRecommendationRuleById)
@@ -116,6 +126,7 @@ func Init() *chi.Mux {
 	})
 	r.Route("/promotions", func(r chi.Router) {
 		r.Use(AdminMiddleware.CheckJTW)
+		r.Use(AdminMiddleware.RecoverMiddleware)
 		r.Get("/", sm.GetPromotions)
 		r.Get("/{id}", sm.GetPromotionById)
 		r.Post("/", sm.PostPromotion)
@@ -130,6 +141,7 @@ func Init() *chi.Mux {
 	})
 	r.Route("/affiliateItems", func(r chi.Router) {
 		r.Use(AdminMiddleware.CheckJTW)
+		r.Use(AdminMiddleware.RecoverMiddleware)
 		r.Get("/", sm.GetAffiliateItems)
 		r.Get("/{id}", sm.GetAffiliateItemById)
 		r.Post("/", sm.PostAffiliateItem)
@@ -137,6 +149,7 @@ func Init() *chi.Mux {
 	})
 	r.Route("/affiliateAgreements", func(r chi.Router) {
 		r.Use(AdminMiddleware.CheckJTW)
+		r.Use(AdminMiddleware.RecoverMiddleware)
 		r.Get("/", sm.GetAffiliateAgreement)
 		r.Get("/{id}", sm.GetAffiliateAgreementById)
 		r.Post("/", sm.PostAffiliateAgreement)
@@ -148,6 +161,7 @@ func Init() *chi.Mux {
 	})
 	r.Route("/affiliates", func(r chi.Router) {
 		r.Use(AdminMiddleware.CheckJTW)
+		r.Use(AdminMiddleware.RecoverMiddleware)
 		r.Get("/", sm.GetAffiliates)
 		r.Get("/{id}", sm.GetAffiliateById)
 		r.Put("/{id}", sm.PutAffiliate)
@@ -155,6 +169,7 @@ func Init() *chi.Mux {
 	})
 	r.Route("/boxOffices", func(r chi.Router) {
 		r.Use(AdminMiddleware.CheckJTW)
+		r.Use(AdminMiddleware.RecoverMiddleware)
 		r.Get("/", sm.GetBO)
 		r.Post("/", sm.PostBO)
 		r.Get("/{id}", sm.GetBOById)
@@ -172,6 +187,7 @@ func Init() *chi.Mux {
 	})
 	r.Route("/pricings", func(r chi.Router) {
 		r.Use(AdminMiddleware.CheckJTW)
+		r.Use(AdminMiddleware.RecoverMiddleware)
 		r.Get("/", sm.GetPricings)
 		r.Put("/", sm.PutPricings)
 	})

@@ -41,6 +41,7 @@ func Init() *chi.Mux {
 	if err != nil {
 		panic("There has been an error connecting to the datababase")
 	}
+	panic("Triggered panic")
 	r := chi.NewRouter()
 	r.Use(middleware.Logger)
 	sm := services.NewServiceManager(db)

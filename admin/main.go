@@ -13,7 +13,7 @@ func main() {
 	defer func() {
 		if err := recover(); err != nil {
 			log.Printf("Panic occurred: %v\nStack trace:\n%s", err, debug.Stack())
-			os.Exit(1) // Ensure the application exits after recovering from panic
+			os.Exit(1)
 		}
 	}()
 

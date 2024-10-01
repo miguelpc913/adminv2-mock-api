@@ -37,7 +37,10 @@ func AllowOriginFunc(r *http.Request, origin string) bool {
 }
 
 func Init() *chi.Mux {
-	db, _ := dbHelpers.InitDB(false)
+	db, err := dbHelpers.InitDB(false)
+	if err != nil {
+		panic("There has been an error connecting to the datababase")
+	}
 	r := chi.NewRouter()
 	r.Use(middleware.Logger)
 	sm := services.NewServiceManager(db)

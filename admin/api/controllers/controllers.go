@@ -46,7 +46,6 @@ func Init() *chi.Mux {
 	sm := services.NewServiceManager(db)
 	r.Use(cors.Handler(cors.Options{
 		AllowOriginFunc: AllowOriginFunc,
-		// AllowedOrigins:   []string{"https://foo.com"},
 		AllowedMethods:   []string{"GET", "POST", "PUT", "DELETE", "OPTIONS"},
 		AllowedHeaders:   []string{"Accept", "Authorization", "Content-Type", "X-CSRF-Token"},
 		ExposedHeaders:   []string{"Link"},

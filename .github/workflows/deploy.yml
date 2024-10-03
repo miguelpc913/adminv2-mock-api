@@ -62,12 +62,12 @@ jobs:
         image: ${{ steps.build-image.outputs.image }}
         environment-variables: |
             ENVIRONMENT=dev
-            MYSQL_ROOT_PASSWORD=root
-            MYSQL_DATABASE=admin_dev
+            MYSQL_ROOT_PASSWORD=${{ secrets.MYSQLPASSROOT }}
+            MYSQL_DATABASE=${{ vars.DATABASE }}
             MYSQL_USER=admin
-            MYSQL_PASSWORD=admin
+            MYSQL_PASSWORD=${{ secrets.MYSQLPASS }}
             MYSQL_PORT=3306
-            MYSQL_HOST=adminmockapi-db.ccwi8akjz0qr.eu-west-1.rds.amazonaws.com
+            MYSQL_HOST=${{ vars.DBHOST }}
             air_wd=/app
         docker-labels: |
             SERVICE=api

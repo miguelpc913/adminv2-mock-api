@@ -5,6 +5,12 @@
             "image": "227320912480.dkr.ecr.eu-west-1.amazonaws.com/admin-mock-api:develop",
             "cpu": 1,
             "memory": 512,
+            "healthCheck": {
+                "command": ["CMD-SHELL", "curl -f http://localhost/health || exit 1"],
+                "interval": 30,
+                "timeout": 5,
+                "retries": 3
+              },
             "portMappings": [
                 {
                     "containerPort": 8080,
@@ -12,6 +18,14 @@
                     "protocol": "tcp"
                 }
             ],
+            "logConfiguration": {
+                "logDriver": "awslogs",
+                "options": {
+                  "awslogs-group": "ECS-CW-Containers",
+                  "awslogs-region": "eu-west-1",
+                  "awslogs-stream-prefix": "qa-adminv2-mock"
+                }
+            },
             "essential": true,
             "environment": [],
             "mountPoints": [],
@@ -21,4 +35,3 @@
     ],
     "family": "admin-mock-api"
 }
-

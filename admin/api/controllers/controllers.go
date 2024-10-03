@@ -44,6 +44,20 @@ func Init() *chi.Mux {
 	r := chi.NewRouter()
 	r.Use(middleware.Logger)
 	sm := services.NewServiceManager(db)
+
+	// Custom middleware to skip logging for /health
+	r.Use(func(next http.Handler) http.Handler {
+		return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+			if r.URL.Path == "/health" {
+				// Skip logging for health check
+				next.ServeHTTP(w, r)
+				return
+			}
+			// Log the rest of the requests
+			middleware.Logger(next).ServeHTTP(w, r)
+		})
+	})
+
 	r.Use(cors.Handler(cors.Options{
 		AllowOriginFunc: AllowOriginFunc,
 		AllowedMethods:   []string{"GET", "POST", "PUT", "DELETE", "OPTIONS"},

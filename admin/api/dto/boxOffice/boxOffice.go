@@ -61,6 +61,8 @@ type BoxOfficePrintSettings struct {
 	SingleDocPrint               bool     `json:"singleDocPrint"`
 	AllowedTicketGroupTypes      []string `json:"allowedTicketGroupTypes"`
 	PrintCashCount               bool     `json:"printCashCount"`
+	PrintCommerceReceipt         bool     `json:"printCommerceReceipt"`
+	PrintClientReceipt           bool     `json:"printClientReceipt"`
 }
 
 type BoxOfficePaymentRequest struct {

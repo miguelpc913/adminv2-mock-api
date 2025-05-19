@@ -37,16 +37,16 @@ func AllowOriginFunc(r *http.Request, origin string) bool {
 }
 
 func Init() *chi.Mux {
-	db, err := dbHelpers.InitDB(false)
+	db, err := dbHelpers.InitDB(true)
 	if err != nil {
 		panic("There has been an error connecting to the datababase")
 	}
 	r := chi.NewRouter()
 	r.Use(middleware.Logger)
 	sm := services.NewServiceManager(db)
-	
+
 	r.Use(cors.Handler(cors.Options{
-		AllowOriginFunc: AllowOriginFunc,
+		AllowOriginFunc:  AllowOriginFunc,
 		AllowedMethods:   []string{"GET", "POST", "PUT", "DELETE", "OPTIONS"},
 		AllowedHeaders:   []string{"Accept", "Authorization", "Content-Type", "X-CSRF-Token"},
 		ExposedHeaders:   []string{"Link"},

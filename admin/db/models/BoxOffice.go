@@ -44,6 +44,8 @@ type BoxOffice struct {
 	OptionalPrintTicketPrice     bool                         `json:"optionalPrintTicketPrice"`
 	PrintSummary                 bool                         `json:"printSummary"`
 	OptionalPrintSummary         bool                         `json:"optionalPrintSummary"`
+	PrintCommerceReceipt         bool                         `json:"printCommerceReceipt"`
+	PrintClientReceipt           bool                         `json:"printClientReceipt"`
 	HighlightPrintedReservations bool                         `json:"highlightPrintedReservations"`
 	SingleDocPrint               bool                         `json:"singleDocPrint"`
 	AllowedTicketGroupTypes      modelHelpers.JSONStringSlice `json:"allowedTicketGroupTypes" gorm:"type:JSON"`

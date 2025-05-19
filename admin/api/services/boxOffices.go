@@ -186,8 +186,10 @@ func (sm *ServiceManager) PutBOPrintSettings(w http.ResponseWriter, r *http.Requ
 		SingleDocPrint:               req.SingleDocPrint,
 		AllowedTicketGroupTypes:      req.AllowedTicketGroupTypes,
 		PrintCashCount:               req.PrintCashCount,
+		PrintCommerceReceipt:         req.PrintCommerceReceipt,
+		PrintClientReceipt:           req.PrintClientReceipt,
 	}
-	err = sm.db.Model(&boxOffice).Select("PrintTicket", "OptionalPrintTicket", "PrintTicketPrice", "OptionalPrintTicketPrice", "PrintSummary", "OptionalPrintSummary", "HighlightPrintedReservations", "SingleDocPrint", "AllowedTicketGroupTypes", "PrintCashCount").Updates(boxOfficeUpdate).Error
+	err = sm.db.Model(&boxOffice).Select("PrintTicket", "OptionalPrintTicket", "PrintTicketPrice", "OptionalPrintTicketPrice", "PrintSummary", "OptionalPrintSummary", "HighlightPrintedReservations", "SingleDocPrint", "AllowedTicketGroupTypes", "PrintCashCount", "PrintCommerceReceipt", "PrintClientReceipt").Updates(boxOfficeUpdate).Error
 	if err != nil {
 		helpers.WriteJSON(w, http.StatusBadRequest, map[string]string{"error": err.Error()})
 		return

@@ -2,7 +2,6 @@ package services
 
 import (
 	"encoding/json"
-	"fmt"
 	"net/http"
 
 	"github.com/go-chi/chi"
@@ -125,7 +124,6 @@ func (sm *ServiceManager) PostVAB(w http.ResponseWriter, r *http.Request) {
 		helpers.WriteJSON(w, http.StatusBadRequest, map[string]string{"error": "Invalid request"})
 		return
 	}
-	fmt.Println(req)
 	for _, buyerTypeId := range req.BuyerTypeIdSet {
 		vab := models.VerifierAlertBuyerType{
 			BuyerTypeID: buyerTypeId,
@@ -133,14 +131,13 @@ func (sm *ServiceManager) PostVAB(w http.ResponseWriter, r *http.Request) {
 			AlertSound:  req.AlertSound,
 		}
 		err := sm.db.Create(&vab).Error
-		fmt.Println("Test")
 		if err != nil {
 			helpers.WriteJSON(w, http.StatusInternalServerError, err)
 			return
 		}
 	}
 
-	// helpers.WriteJSON(w, http.StatusOK, map[string]string{"error": "Created verifier alerts properly"})
+	helpers.WriteJSON(w, http.StatusOK, map[string]string{"success": "Created verifier alerts properly"})
 }
 
 func (sm *ServiceManager) PostVAP(w http.ResponseWriter, r *http.Request) {
@@ -162,5 +159,5 @@ func (sm *ServiceManager) PostVAP(w http.ResponseWriter, r *http.Request) {
 		}
 	}
 
-	helpers.WriteJSON(w, http.StatusOK, map[string]string{"error": "Created verifier alerts properly"})
+	helpers.WriteJSON(w, http.StatusOK, map[string]string{"success": "Created verifier alerts properly"})
 }

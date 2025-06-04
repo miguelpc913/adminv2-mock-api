@@ -33,4 +33,11 @@ func MigrateModels(db *gorm.DB) {
 	db.AutoMigrate(&models.ProductVenueBuyerTypes{})
 	db.AutoMigrate(&models.SpecificPricing{})
 	db.AutoMigrate(&models.MainPricing{})
+	db.AutoMigrate(&models.Vars{})
+	db.AutoMigrate(&models.BuyerTypeRule{})
+	db.AutoMigrate(&models.Report{})
+	db.AutoMigrate(&models.PointsOfSale{})
+	db.AutoMigrate(&models.User{})
+	db.AutoMigrate(&models.VerifierAlertBuyerType{})
+	db.AutoMigrate(&models.VerifierAlertPromotion{})
 }

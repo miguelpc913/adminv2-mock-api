@@ -83,6 +83,11 @@ func Init() *chi.Mux {
 		r.Use(AdminMiddleware.CheckJTW)
 		r.Use(AdminMiddleware.RecoverMiddleware)
 		r.Get("/", sm.GetBuyerTypes)
+		r.Get("/verifierAlerts", sm.GetVAB)
+		r.Get("/verifierAlerts/{id}", sm.GetVABById)
+		r.Put("/verifierAlerts/{id}", sm.PutVAB)
+		r.Post("/verifierAlerts", sm.PostVAB)
+		r.Delete("/verifierAlerts", sm.DeleteVAB)
 	})
 	r.Route("/extras", func(r chi.Router) {
 		r.Use(AdminMiddleware.CheckJTW)
@@ -141,6 +146,11 @@ func Init() *chi.Mux {
 		r.Put("/{id}/salesGroups", sm.PutPromotionSalesGroups)
 		r.Put("/{id}/buyerTypes", sm.PutPromotionBuyerTypes)
 		r.Put("/{id}/products", sm.PutPromotionProducts)
+		r.Get("/verifierAlerts", sm.GetVAP)
+		r.Get("/verifierAlerts/{id}", sm.GetVAPById)
+		r.Put("/verifierAlerts/{id}", sm.PutVAP)
+		r.Post("/verifierAlerts", sm.PostVAP)
+		r.Delete("/verifierAlerts", sm.DeleteVAP)
 	})
 	r.Route("/affiliateItems", func(r chi.Router) {
 		r.Use(AdminMiddleware.CheckJTW)
@@ -188,11 +198,35 @@ func Init() *chi.Mux {
 		r.Put("/{id}/salesGroups", sm.PutBOSalesGroups)
 		r.Put("/{id}/products", sm.PutBOProducts)
 	})
+
 	r.Route("/pricings", func(r chi.Router) {
 		r.Use(AdminMiddleware.CheckJTW)
 		r.Use(AdminMiddleware.RecoverMiddleware)
 		r.Get("/", sm.GetPricings)
 		r.Put("/", sm.PutPricings)
+	})
+
+	r.Route("/buyerTypeRules", func(r chi.Router) {
+		r.Use(AdminMiddleware.CheckJTW)
+		r.Use(AdminMiddleware.RecoverMiddleware)
+		r.Get("/", sm.GetBuyerTypesRules)
+		r.Get("/{id}", sm.GetBuyerTypeRulesId)
+		r.Post("/", sm.PostBuyerTypeRules)
+		r.Put("/{id}/identity", sm.PutBuyerTypeRulesIdentity)
+		r.Put("/{id}/configurations", sm.PutBuyerTypeRuleConfiguration)
+		r.Put("/{id}/products", sm.PutBuyerTypeRulesProductSet)
+	})
+
+	r.Route("/appUsers", func(r chi.Router) {
+		r.Use(AdminMiddleware.CheckJTW)
+		r.Use(AdminMiddleware.RecoverMiddleware)
+		r.Get("/", sm.GetAppUsers)
+		r.Get("/{id}", sm.GetAppUserById)
+		r.Post("/", sm.PostAppUser)
+		r.Post("/validate", sm.PostValidateUser)
+		r.Put("/{id}/identity", sm.PutAppUserIdentity)
+		r.Put("/{id}/reports", sm.PutReportSet)
+		r.Put("/{id}/pointOfSales", sm.PutPointOfSaleSet)
 	})
 
 	// r.Route("/restartDb", func(r chi.Router) {

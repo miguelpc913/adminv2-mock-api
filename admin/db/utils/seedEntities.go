@@ -91,6 +91,17 @@ func SeedEntities(db *gorm.DB) {
 		seeds.SeedBoxOffice(db)
 		entityEmptyMap["Pricings"] = true
 	}
+	if isEntityEmpty(db, &models.BuyerTypeRule{}) {
+		seeds.SeedBuyerTypeRules(db)
+	}
+
+	if isEntityEmpty(db, &models.User{}) {
+		seeds.SeedUsers(db)
+	}
+
+	if (isEntityEmpty(db, &models.VerifierAlertBuyerType{}) && isEntityEmpty(db, &models.VerifierAlertPromotion{})) {
+		seeds.SeedVerifierAlerts(db)
+	}
 
 	// Seed associations
 	if entityEmptyMap["SalesGroup"] {

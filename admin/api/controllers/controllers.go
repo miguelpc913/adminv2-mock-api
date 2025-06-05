@@ -10,6 +10,7 @@ import (
 	"github.com/go-chi/cors"
 	AdminMiddleware "github.com/tiqueteo/adminv2-mock-api/api/middleware"
 	"github.com/tiqueteo/adminv2-mock-api/api/services"
+
 	dbHelpers "github.com/tiqueteo/adminv2-mock-api/db/utils"
 )
 
@@ -227,6 +228,13 @@ func Init() *chi.Mux {
 		r.Put("/{id}/identity", sm.PutAppUserIdentity)
 		r.Put("/{id}/reports", sm.PutReportSet)
 		r.Put("/{id}/pointOfSales", sm.PutPointOfSaleSet)
+	})
+
+	r.Route("/bulkActions", func(r chi.Router) {
+		r.Use(AdminMiddleware.CheckJTW)
+		r.Use(AdminMiddleware.RecoverMiddleware)
+		r.Post("/validate", sm.PostBulkActionsValidate)
+		r.Post("/", sm.PostBulkActionsExecute)
 	})
 
 	// r.Route("/restartDb", func(r chi.Router) {

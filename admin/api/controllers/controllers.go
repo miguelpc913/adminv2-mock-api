@@ -240,30 +240,7 @@ func Init() *chi.Mux {
 		r.Post("/", sm.PostBulkActionsExecute)
 	})
 
-	r.Route("/restartDbLocal", func(r chi.Router) {
-		r.Use(AdminMiddleware.CheckJTW)
-		r.Post("/", func(w http.ResponseWriter, r *http.Request) {
-			tx := db.Exec("DROP DATABASE admin_dev;")
-			if tx.Error != nil {
-				helpers.WriteJSON(w, http.StatusInternalServerError, map[string]string{"error": tx.Error.Error()})
-				return
-			}
-			tx = db.Exec("CREATE DATABASE admin_dev;")
-			if tx.Error != nil {
-				helpers.WriteJSON(w, http.StatusInternalServerError, map[string]string{"error": tx.Error.Error()})
-				return
-			}
-			newDb, err := dbHelpers.InitDB(true)
-			if err != nil {
-				helpers.WriteJSON(w, http.StatusInternalServerError, map[string]string{"error": err.Error()})
-				return
-			}
-			*db = *newDb
-			*sm = *services.NewServiceManager(db)
-			helpers.WriteJSON(w, http.StatusOK, map[string]string{"success": "Db has been restarted"})
-		})
-	})
-	r.Route("/restartDbProd", func(r chi.Router) {
+	r.Route("/restartDb", func(r chi.Router) {
 		r.Use(AdminMiddleware.CheckJTW)
 		r.Post("/", func(w http.ResponseWriter, r *http.Request) {
 			var dbname = os.Getenv("MYSQL_DATABASE")

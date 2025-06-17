@@ -233,6 +233,18 @@ func Init() *chi.Mux {
 		r.Put("/{id}/pointOfSales", sm.PutPointOfSaleSet)
 	})
 
+	r.Route("/pointOfSales", func(r chi.Router) {
+		r.Use(AdminMiddleware.CheckJTW)
+		r.Use(AdminMiddleware.RecoverMiddleware)
+		r.Get("/", sm.GetPO)
+	})
+
+	r.Route("/reports", func(r chi.Router) {
+		r.Use(AdminMiddleware.CheckJTW)
+		r.Use(AdminMiddleware.RecoverMiddleware)
+		r.Get("/", sm.GetReports)
+	})
+
 	r.Route("/bulkActions", func(r chi.Router) {
 		r.Use(AdminMiddleware.CheckJTW)
 		r.Use(AdminMiddleware.RecoverMiddleware)

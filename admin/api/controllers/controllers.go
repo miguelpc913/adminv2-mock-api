@@ -207,7 +207,13 @@ func Init() *chi.Mux {
 		r.Use(AdminMiddleware.CheckJTW)
 		r.Use(AdminMiddleware.RecoverMiddleware)
 		r.Get("/", sm.GetPricings)
-		r.Put("/", sm.PutPricings)
+		r.Post("/", sm.PostBasePricing)
+		r.Get("/{id}", sm.GetPricingById)
+		r.Post("/{id}/advancedPricings", sm.PostSpecficPricing)
+		r.Put("/{id}/configurations", sm.PutSpecificPricingsConfiguration)
+		r.Put("/{id}/advancedPricings/priorities", sm.PutPricingsPriorities)
+		r.Put("/tariffs", sm.PutPricingsTariffs)
+
 	})
 
 	r.Route("/buyerTypeRules", func(r chi.Router) {

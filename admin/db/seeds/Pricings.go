@@ -12,14 +12,18 @@ func SeedMainPricing(db *gorm.DB) {
 	mainPricings := []models.MainPricing{
 		{
 			MainPricingId: 1,
-			StartDatetime: "2024-01-01T00:00:00Z",
-			EndDateTime:   "2024-12-31T23:59:59Z",
+			StartDate:     "2024-01-01",
+			EndDate:       "2024-12-31",
+			Color:         "#93CEF8",
+			Name:          "Tarifario base 1",
 			ProductId:     2,
 		},
 		{
 			MainPricingId: 2,
-			StartDatetime: "2025-01-01T00:00:00Z",
-			EndDateTime:   "2025-12-31T23:59:59Z",
+			StartDate:     "2025-01-01",
+			EndDate:       "2025-12-31",
+			Color:         "#98DC98",
+			Name:          "Tarifario base 2",
 			ProductId:     2,
 		},
 	}
@@ -37,6 +41,8 @@ func SeedMainPricing(db *gorm.DB) {
 			Priority:      99999,
 			Weekdays:      []int{1, 2, 3, 4, 5, 6, 7},
 			EnabledDates:  []string{},
+			StartHour:     stringPtr("08:00:00"),
+			EndHour:       stringPtr("20:00:00"),
 			Default:       true,
 			CreatedAt:     time.Now(),
 			UpdatedAt:     time.Now(),
@@ -48,10 +54,13 @@ func SeedMainPricing(db *gorm.DB) {
 			Priority:      1,
 			Weekdays:      []int{6, 7},
 			EnabledDates:  []string{},
+			StartHour:     stringPtr("08:00:00"),
+			EndHour:       stringPtr("20:00:00"),
 			Default:       false,
 			CreatedAt:     time.Now(),
 			UpdatedAt:     time.Now(),
 		},
+
 		{
 			PricingId:     3,
 			MainPricingId: 2,
@@ -59,9 +68,12 @@ func SeedMainPricing(db *gorm.DB) {
 			Priority:      99999,
 			Weekdays:      []int{1, 2, 3, 4, 5, 6, 7},
 			EnabledDates:  []string{},
-			Default:       true,
-			CreatedAt:     time.Now(),
-			UpdatedAt:     time.Now(),
+			StartHour:     stringPtr("08:00:00"),
+			EndHour:       stringPtr("20:00:00"),
+
+			Default:   true,
+			CreatedAt: time.Now(),
+			UpdatedAt: time.Now(),
 		},
 		{
 			PricingId:     4,
@@ -70,6 +82,8 @@ func SeedMainPricing(db *gorm.DB) {
 			Priority:      1,
 			Weekdays:      []int{1, 2, 3, 4, 5, 6, 7},
 			EnabledDates:  []string{"2025-06-01", "2025-06-02", "2025-06-03"},
+			StartHour:     stringPtr("08:00:00"),
+			EndHour:       stringPtr("20:00:00"),
 			Default:       false,
 			CreatedAt:     time.Now(),
 			UpdatedAt:     time.Now(),
@@ -77,7 +91,61 @@ func SeedMainPricing(db *gorm.DB) {
 	}
 	result = db.Create(&specificPricings)
 	if result.Error != nil {
-		fmt.Print("There has been an error in the seed of specific pricings")
+		fmt.Print(result.Error.Error())
+	}
+	// RecurrentTimes
+	recurrentTimes := []models.RecurrentTime{
+		{
+			RecurrentTimeId: 1,
+			PricingId:       1,
+			Minutes:         []int{0, 30},
+			Hours:           []int{10, 13, 18},
+		},
+		{
+			RecurrentTimeId: 2,
+			PricingId:       2,
+			Minutes:         []int{15, 45},
+			Hours:           []int{9, 12, 15},
+		},
+	}
+	result = db.Create(&recurrentTimes)
+	if result.Error != nil {
+		fmt.Print(result.Error.Error())
+	}
+
+	// DynamicPricingConfigurations
+	dynamicPricingConfigs := []models.DynamicPricingConfiguration{
+		{
+			DynamicPricingConfigurationId: 1,
+			PricingId:                     3,
+			Type:                          "event_range",
+			StartHour:                     "10:00:00",
+			EndHour:                       "18:00:00",
+		},
+		{
+			DynamicPricingConfigurationId: 2,
+			PricingId:                     4,
+			Type:                          "event_range",
+			StartHour:                     "12:00:00",
+			EndHour:                       "20:00:00",
+		},
+	}
+	result = db.Create(&dynamicPricingConfigs)
+	if result.Error != nil {
+		fmt.Print(result.Error.Error())
+	}
+
+	// OccupancyRanges
+	occupancyRanges := []models.OccupancyRange{
+		{OccupancyRangeId: 1, DynamicPricingConfigurationId: 1, Start: 0, End: 25},
+		{OccupancyRangeId: 2, DynamicPricingConfigurationId: 1, Start: 26, End: 75},
+		{OccupancyRangeId: 3, DynamicPricingConfigurationId: 1, Start: 76, End: 100},
+		{OccupancyRangeId: 4, DynamicPricingConfigurationId: 2, Start: 0, End: 50},
+		{OccupancyRangeId: 5, DynamicPricingConfigurationId: 2, Start: 51, End: 100},
+	}
+	result = db.Create(&occupancyRanges)
+	if result.Error != nil {
+		fmt.Print(result.Error.Error())
 	}
 
 	productVenueBuyerTypes := []models.ProductVenueBuyerTypes{

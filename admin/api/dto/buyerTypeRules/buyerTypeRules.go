@@ -23,7 +23,8 @@ type BuyerTypeRulesIdentity struct {
 }
 
 type BuyerTypeRuleConfiguration struct {
-	Vars         VarsDTO `json:"vars"`
-	ErrorMessage string  `json:"errorMessage"`
-	Priority     int     `json:"priority"`
+	Vars                    VarsDTO `json:"vars"`
+	ErrorMessage            string  `json:"errorMessage"`
+	Priority                int     `json:"priority"`
+	BuyerTypeRuleTemplateID uint    `json:"buyerTypeRuleTemplateId"`
 }

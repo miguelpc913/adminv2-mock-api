@@ -61,7 +61,7 @@ func SeedBuyerTypeRules(db *gorm.DB) {
 		{
 			Status:                  true,
 			Name:                    "Corporate",
-			BuyerTypeRuleTemplateID: 6,
+			BuyerTypeRuleTemplateID: 5,
 
 			ErrorMessage: `{"en": "Corporate error message", "es": "Mensaje de error corporativo", "ca": "Missatge d'error corporatiu"}`,
 			Priority:     6,
@@ -69,7 +69,7 @@ func SeedBuyerTypeRules(db *gorm.DB) {
 		{
 			Status:                  true,
 			Name:                    "VIP",
-			BuyerTypeRuleTemplateID: 7,
+			BuyerTypeRuleTemplateID: 5,
 
 			ErrorMessage: `{"en": "VIP rule error", "es": "Error de VIP", "ca": "Error VIP"}`,
 			Priority:     7,

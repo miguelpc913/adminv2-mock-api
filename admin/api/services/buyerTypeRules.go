@@ -61,7 +61,7 @@ func (sm *ServiceManager) PutBuyerTypeRuleConfiguration(w http.ResponseWriter, r
 		helpers.WriteJSON(w, http.StatusBadRequest, map[string]string{"error": "No buyer type rule identity with that vars id"})
 		return
 	}
-	if err := sm.db.Model(&buyerTypeRule).Updates(map[string]interface{}{"ErrorMessage": req.ErrorMessage, "Priority": req.Priority}).Error; err != nil {
+	if err := sm.db.Model(&buyerTypeRule).Updates(map[string]interface{}{"ErrorMessage": req.ErrorMessage, "Priority": req.Priority, "BuyerTypeRuleTemplateID": req.BuyerTypeRuleTemplateID}).Error; err != nil {
 		helpers.WriteJSON(w, http.StatusBadRequest, map[string]string{"error": "Couldn't update buyer type rule"})
 		return
 	}

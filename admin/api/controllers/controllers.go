@@ -261,7 +261,7 @@ func Init() *chi.Mux {
 	r.Route("/restartDb", func(r chi.Router) {
 		r.Use(AdminMiddleware.CheckJTW)
 		r.Post("/", func(w http.ResponseWriter, r *http.Request) {
-			var dbname = os.Getenv("MYSQL_DATABASE")
+			var dbname = os.Getenv("POSTGRES_DATABASE")
 			tx := db.Exec("DROP DATABASE " + dbname + ";")
 			if tx.Error != nil {
 				helpers.WriteJSON(w, http.StatusInternalServerError, map[string]string{"error": tx.Error.Error()})

@@ -8,8 +8,14 @@ services:
       dockerfile: dev.Dockerfile
     ports:
       - "8080:8080"
-    env_file:
-      - .env
+    environment:
+      - ENV_VAR=dev
+      - POSTGRES_HOST=postgres-db # ✅ nombre del servicio, no "db"
+      - POSTGRES_PORT=5432
+      - POSTGRES_USER=admin
+      - POSTGRES_PASSWORD=admin
+      - POSTGRES_DATABASE=admin_dev
+      - DB_SSLMODE=disable
     volumes:
       - ./admin:/app
     depends_on:

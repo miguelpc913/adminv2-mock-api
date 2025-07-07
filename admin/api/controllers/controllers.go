@@ -282,6 +282,12 @@ func Init() *chi.Mux {
 			helpers.WriteJSON(w, http.StatusOK, map[string]string{"success": "Db has been restarted"})
 		})
 	})
+	r.Route("/seedDb", func(r chi.Router) {
+		r.Use(AdminMiddleware.CheckJTW)
+		r.Post("/", func(w http.ResponseWriter, r *http.Request) {
+			dbHelpers.SeedEntities(db)
+		})
+	})
 
 	return r
 }

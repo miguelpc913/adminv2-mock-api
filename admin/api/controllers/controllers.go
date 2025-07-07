@@ -285,6 +285,7 @@ func Init() *chi.Mux {
 	r.Route("/seedDb", func(r chi.Router) {
 		r.Use(AdminMiddleware.CheckJTW)
 		r.Post("/", func(w http.ResponseWriter, r *http.Request) {
+			dbHelpers.MigrateModels(db)
 			dbHelpers.SeedEntities(db)
 		})
 	})

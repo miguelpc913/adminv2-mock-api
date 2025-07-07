@@ -40,8 +40,8 @@ type Report struct {
 type User struct {
 	AppUserID      uint           `gorm:"primaryKey" json:"appUserId"`
 	Status         bool           `json:"status"`
-	Type           UserType       `gorm:"type:enum('call_center','box_office')" json:"type"`
-	Profile        UserProfile    `gorm:"type:enum('operator','admin')" json:"profile"`
+	Type           UserType       `gorm:"type:text" json:"type"` // ya que UserType es un string alias
+	Profile        UserProfile    `gorm:"type:text" json:"profile"`
 	Name           string         `json:"name"`
 	LastName       string         `json:"lastName"`
 	UserName       string         `json:"userName"`

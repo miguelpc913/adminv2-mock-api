@@ -12,6 +12,7 @@ import (
 
 func main() {
 	err := godotenv.Load(".env")
+	port := os.Getenv("port")
 	if err != nil {
 		log.Printf("No %s file found or error loading it\n", ".env")
 	}
@@ -23,5 +24,5 @@ func main() {
 	}()
 
 	r := controllers.Init()
-	http.ListenAndServe(":8080", r)
+	http.ListenAndServe(":"+port, r)
 }

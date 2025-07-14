@@ -12,6 +12,8 @@ import (
 	"github.com/tiqueteo/adminv2-mock-api/api/helpers"
 	AdminMiddleware "github.com/tiqueteo/adminv2-mock-api/api/middleware"
 	"github.com/tiqueteo/adminv2-mock-api/api/services"
+	"gorm.io/driver/postgres"
+	"gorm.io/gorm"
 
 	dbHelpers "github.com/tiqueteo/adminv2-mock-api/db/utils"
 )
@@ -261,17 +263,42 @@ func Init() *chi.Mux {
 	r.Route("/restartDb", func(r chi.Router) {
 		r.Use(AdminMiddleware.CheckJTW)
 		r.Post("/", func(w http.ResponseWriter, r *http.Request) {
-			var dbname = os.Getenv("POSTGRES_DATABASE")
-			tx := db.Exec("DROP DATABASE " + dbname + ";")
+			dbname := os.Getenv("POSTGRES_DATABASE")
+			dbUser := os.Getenv("POSTGRES_USER")
+			dbPass := os.Getenv("POSTGRES_PASSWORD")
+			dbHost := os.Getenv("POSTGRES_HOST")
+			dbPort := os.Getenv("POSTGRES_PORT")
+
+			// Connect to the "postgres" maintenance DB
+			connStr := fmt.Sprintf("host=%s port=%s user=%s password=%s dbname=postgres sslmode=disable",
+				dbHost, dbPort, dbUser, dbPass)
+			maintenanceDB, err := gorm.Open(postgres.Open(connStr), &gorm.Config{})
+			if err != nil {
+				helpers.WriteJSON(w, http.StatusInternalServerError, map[string]string{"error": err.Error()})
+				return
+			}
+
+			// Terminate connections to the target database
+			maintenanceDB.Exec(fmt.Sprintf(`
+				SELECT pg_terminate_backend(pid)
+				FROM pg_stat_activity
+				WHERE datname = '%s' AND pid <> pg_backend_pid();`, dbname))
+
+			// Drop the target DB
+			tx := maintenanceDB.Exec("DROP DATABASE " + dbname + ";")
 			if tx.Error != nil {
 				helpers.WriteJSON(w, http.StatusInternalServerError, map[string]string{"error": tx.Error.Error()})
 				return
 			}
-			tx = db.Exec("CREATE DATABASE " + dbname + ";")
+
+			// Recreate the DB
+			tx = maintenanceDB.Exec("CREATE DATABASE " + dbname + ";")
 			if tx.Error != nil {
 				helpers.WriteJSON(w, http.StatusInternalServerError, map[string]string{"error": tx.Error.Error()})
 				return
 			}
+
+			// Reinitialize the DB and services
 			newDb, err := dbHelpers.InitDB(true)
 			if err != nil {
 				helpers.WriteJSON(w, http.StatusInternalServerError, map[string]string{"error": err.Error()})
@@ -279,8 +306,10 @@ func Init() *chi.Mux {
 			}
 			*db = *newDb
 			*sm = *services.NewServiceManager(db)
+
 			helpers.WriteJSON(w, http.StatusOK, map[string]string{"success": "Db has been restarted"})
 		})
+
 	})
 	r.Route("/seedDb", func(r chi.Router) {
 		r.Use(AdminMiddleware.CheckJTW)

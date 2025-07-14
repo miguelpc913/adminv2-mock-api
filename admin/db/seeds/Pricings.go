@@ -11,20 +11,18 @@ import (
 func SeedMainPricing(db *gorm.DB) {
 	mainPricings := []models.MainPricing{
 		{
-			MainPricingId: 1,
-			StartDate:     "2024-01-01",
-			EndDate:       "2024-12-31",
-			Color:         "#93CEF8",
-			Name:          "Tarifario base 1",
-			ProductId:     2,
+			StartDate: "2024-01-01",
+			EndDate:   "2024-12-31",
+			Color:     "#93CEF8",
+			Name:      "Tarifario base 1",
+			ProductId: 2,
 		},
 		{
-			MainPricingId: 2,
-			StartDate:     "2025-01-01",
-			EndDate:       "2025-12-31",
-			Color:         "#98DC98",
-			Name:          "Tarifario base 2",
-			ProductId:     2,
+			StartDate: "2025-01-01",
+			EndDate:   "2025-12-31",
+			Color:     "#98DC98",
+			Name:      "Tarifario base 2",
+			ProductId: 2,
 		},
 	}
 
@@ -35,7 +33,7 @@ func SeedMainPricing(db *gorm.DB) {
 
 	specificPricings := []models.SpecificPricing{
 		{
-			PricingId:     1,
+
 			MainPricingId: 1,
 			Name:          "Tarifario Base",
 			Priority:      99999,
@@ -48,7 +46,7 @@ func SeedMainPricing(db *gorm.DB) {
 			UpdatedAt:     time.Now(),
 		},
 		{
-			PricingId:     2,
+
 			MainPricingId: 1,
 			Name:          "Tarifario Especial 2024 - Fin de Semana",
 			Priority:      1,
@@ -62,7 +60,7 @@ func SeedMainPricing(db *gorm.DB) {
 		},
 
 		{
-			PricingId:     3,
+
 			MainPricingId: 2,
 			Name:          "Tarifario Base",
 			Priority:      99999,
@@ -76,7 +74,7 @@ func SeedMainPricing(db *gorm.DB) {
 			UpdatedAt: time.Now(),
 		},
 		{
-			PricingId:     4,
+
 			MainPricingId: 2,
 			Name:          "Tarifario Especial 2025 - Temporada Alta",
 			Priority:      1,
@@ -96,16 +94,16 @@ func SeedMainPricing(db *gorm.DB) {
 	// RecurrentTimes
 	recurrentTimes := []models.RecurrentTime{
 		{
-			RecurrentTimeId: 1,
-			PricingId:       1,
-			Minutes:         []int{0, 30},
-			Hours:           []int{10, 13, 18},
+
+			PricingId: 1,
+			Minutes:   []int{0, 30},
+			Hours:     []int{10, 13, 18},
 		},
 		{
-			RecurrentTimeId: 2,
-			PricingId:       2,
-			Minutes:         []int{15, 45},
-			Hours:           []int{9, 12, 15},
+
+			PricingId: 2,
+			Minutes:   []int{15, 45},
+			Hours:     []int{9, 12, 15},
 		},
 	}
 	result = db.Create(&recurrentTimes)
@@ -116,18 +114,18 @@ func SeedMainPricing(db *gorm.DB) {
 	// DynamicPricingConfigurations
 	dynamicPricingConfigs := []models.DynamicPricingConfiguration{
 		{
-			DynamicPricingConfigurationId: 1,
-			PricingId:                     3,
-			Type:                          "event_range",
-			StartHour:                     "10:00:00",
-			EndHour:                       "18:00:00",
+
+			PricingId: 3,
+			Type:      "event_range",
+			StartHour: "10:00:00",
+			EndHour:   "18:00:00",
 		},
 		{
-			DynamicPricingConfigurationId: 2,
-			PricingId:                     4,
-			Type:                          "event_range",
-			StartHour:                     "12:00:00",
-			EndHour:                       "20:00:00",
+
+			PricingId: 4,
+			Type:      "event_range",
+			StartHour: "12:00:00",
+			EndHour:   "20:00:00",
 		},
 	}
 	result = db.Create(&dynamicPricingConfigs)
@@ -137,11 +135,11 @@ func SeedMainPricing(db *gorm.DB) {
 
 	// OccupancyRanges
 	occupancyRanges := []models.OccupancyRange{
-		{OccupancyRangeId: 1, DynamicPricingConfigurationId: 1, Start: 0, End: 25},
-		{OccupancyRangeId: 2, DynamicPricingConfigurationId: 1, Start: 26, End: 75},
-		{OccupancyRangeId: 3, DynamicPricingConfigurationId: 1, Start: 76, End: 100},
-		{OccupancyRangeId: 4, DynamicPricingConfigurationId: 2, Start: 0, End: 50},
-		{OccupancyRangeId: 5, DynamicPricingConfigurationId: 2, Start: 51, End: 100},
+		{DynamicPricingConfigurationId: 1, Start: 0, End: 25},
+		{DynamicPricingConfigurationId: 1, Start: 26, End: 75},
+		{DynamicPricingConfigurationId: 1, Start: 76, End: 100},
+		{DynamicPricingConfigurationId: 2, Start: 0, End: 50},
+		{DynamicPricingConfigurationId: 2, Start: 51, End: 100},
 	}
 	result = db.Create(&occupancyRanges)
 	if result.Error != nil {

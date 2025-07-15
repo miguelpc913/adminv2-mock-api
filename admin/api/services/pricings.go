@@ -2,6 +2,8 @@ package services
 
 import (
 	"encoding/json"
+	"fmt"
+	"io"
 	"net/http"
 	"strconv"
 	"time"
@@ -170,71 +172,113 @@ func (sm *ServiceManager) PostSpecficPricing(w http.ResponseWriter, r *http.Requ
 	}
 }
 
-func (sm *ServiceManager) PutSpecificPricingsConfiguration(w http.ResponseWriter, r *http.Request) {
-	var req = dto.SpecificPricingDTO{}
-	if err := json.NewDecoder(r.Body).Decode(&req); err != nil {
+func (sm *ServiceManager) PutPricingsConfiguration(w http.ResponseWriter, r *http.Request) {
+	var reqSpecific = dto.SpecificPricingDTO{}
+	var reqBase = dto.BasePricingPost{}
+	bodyBytes, err := io.ReadAll(r.Body)
+	if err != nil {
+		helpers.WriteJSON(w, http.StatusBadRequest, map[string]string{"error": "Failed to read request body"})
+		return
+	}
+
+	// Attempt decoding as both types
+	_ = json.Unmarshal(bodyBytes, &reqSpecific)
+	_ = json.Unmarshal(bodyBytes, &reqBase)
+
+	// Heuristic: determine which one it actually is
+	hasSpecificFields := len(reqSpecific.WeekDays) > 0 ||
+		reqSpecific.StartHour != nil ||
+		reqSpecific.EndHour != nil ||
+		reqSpecific.RecurrentTime != nil ||
+		reqSpecific.DynamicPricingConfiguration != nil
+
+	hasBaseFields := reqBase.Color != "" && reqBase.StartDate != "" && reqBase.EndDate != ""
+
+	if !hasBaseFields && !hasSpecificFields {
 		helpers.WriteJSON(w, http.StatusBadRequest, map[string]string{"error": "Invalid request"})
 		return
 	}
-	specificPricing := models.SpecificPricing{}
-	if err := helpers.GetById(&specificPricing, r, sm.db); err != nil {
-		helpers.WriteJSON(w, http.StatusBadRequest, map[string]string{"error": "Specific pricing not found"})
-		return
-	}
-
-	newSpecificPricingUpdate := models.SpecificPricing{
-		Name:         req.Name,
-		Weekdays:     req.WeekDays,
-		EnabledDates: req.EnabledDates,
-		StartHour:    req.StartHour,
-		EndHour:      req.EndHour,
-	}
-	if err := sm.db.Model(&specificPricing).Select("Name", "Weekdays", "EnabledDates", "StartHour", "EndHour").Updates(newSpecificPricingUpdate).Error; err != nil {
-		helpers.WriteJSON(w, http.StatusBadRequest, map[string]string{"error": err.Error() + " " + "new specific pricing"})
-		return
-	}
-
-	if req.RecurrentTime != nil {
-		prevRecurrentTime := models.RecurrentTime{}
-		recurrentTimesUpdate := models.RecurrentTime{
-			Minutes: req.RecurrentTime.Minutes,
-			Hours:   req.RecurrentTime.Hours,
-		}
-		if err := sm.db.First(&prevRecurrentTime, "pricing_id = ?", specificPricing.PricingId).Error; err != nil {
-			helpers.WriteJSON(w, http.StatusBadRequest, map[string]string{"error": "Recurrent time not properly updated" + err.Error()})
-			return
-		}
-		if err := sm.db.Model(&prevRecurrentTime).Updates(recurrentTimesUpdate).Error; err != nil {
-			helpers.WriteJSON(w, http.StatusBadRequest, map[string]string{"error": "Recurrent time not properly updated" + err.Error()})
+	if hasSpecificFields {
+		fmt.Println("Updated specific pricing")
+		specificPricing := models.SpecificPricing{}
+		if err := helpers.GetById(&specificPricing, r, sm.db); err != nil {
+			helpers.WriteJSON(w, http.StatusBadRequest, map[string]string{"error": "Specific pricing not found"})
 			return
 		}
 
-	}
-	if req.DynamicPricingConfiguration != nil {
-		dynamicPricingConfigsUpdate := models.DynamicPricingConfiguration{
-			PricingId: specificPricing.PricingId,
-			Type:      req.DynamicPricingConfiguration.Type,
-			StartHour: *req.DynamicPricingConfiguration.StartHour,
-			EndHour:   *req.DynamicPricingConfiguration.EndHour,
+		newSpecificPricingUpdate := models.SpecificPricing{
+			Name:         reqSpecific.Name,
+			Weekdays:     reqSpecific.WeekDays,
+			EnabledDates: reqSpecific.EnabledDates,
+			StartHour:    reqSpecific.StartHour,
+			EndHour:      reqSpecific.EndHour,
 		}
-		prevDynamicPricingConfig := models.DynamicPricingConfiguration{}
-		if err := sm.db.First(&prevDynamicPricingConfig, "pricing_id = ?", specificPricing.PricingId).Error; err != nil {
-			helpers.WriteJSON(w, http.StatusBadRequest, map[string]string{"error": "DynamicpricingConfig not properly updated" + err.Error()})
+		if err := sm.db.Model(&specificPricing).Select("Name", "Weekdays", "EnabledDates", "StartHour", "EndHour").Updates(newSpecificPricingUpdate).Error; err != nil {
+			helpers.WriteJSON(w, http.StatusBadRequest, map[string]string{"error": err.Error() + " " + "new specific pricing"})
 			return
 		}
-		if err := sm.db.Model(&prevDynamicPricingConfig).Updates(dynamicPricingConfigsUpdate).Error; err != nil {
-			helpers.WriteJSON(w, http.StatusBadRequest, map[string]string{"error": "DynamicpricingConfig not properly updated" + err.Error()})
-			return
-		}
-		sm.db.Model(&prevDynamicPricingConfig).Association("OccupancyRanges").Clear()
-		for _, occupancyRangeReq := range req.DynamicPricingConfiguration.OccupancyRanges {
-			occupancyRange := models.OccupancyRange{DynamicPricingConfigurationId: prevDynamicPricingConfig.DynamicPricingConfigurationId, Start: occupancyRangeReq.Start, End: occupancyRangeReq.End}
-			if err := sm.db.Create(&occupancyRange).Error; err != nil {
-				helpers.WriteJSON(w, http.StatusBadRequest, map[string]string{"error": err.Error() + " " + "new specific pricing dynamic pricings occupancy range"})
+
+		if reqSpecific.RecurrentTime != nil {
+			prevRecurrentTime := models.RecurrentTime{}
+			recurrentTimesUpdate := models.RecurrentTime{
+				Minutes: reqSpecific.RecurrentTime.Minutes,
+				Hours:   reqSpecific.RecurrentTime.Hours,
+			}
+			if err := sm.db.First(&prevRecurrentTime, "pricing_id = ?", specificPricing.PricingId).Error; err != nil {
+				helpers.WriteJSON(w, http.StatusBadRequest, map[string]string{"error": "Recurrent time not properly updated" + err.Error()})
 				return
 			}
+			if err := sm.db.Model(&prevRecurrentTime).Updates(recurrentTimesUpdate).Error; err != nil {
+				helpers.WriteJSON(w, http.StatusBadRequest, map[string]string{"error": "Recurrent time not properly updated" + err.Error()})
+				return
+			}
+
+		}
+		if reqSpecific.DynamicPricingConfiguration != nil {
+			dynamicPricingConfigsUpdate := models.DynamicPricingConfiguration{
+				PricingId: specificPricing.PricingId,
+				Type:      reqSpecific.DynamicPricingConfiguration.Type,
+				StartHour: *reqSpecific.DynamicPricingConfiguration.StartHour,
+				EndHour:   *reqSpecific.DynamicPricingConfiguration.EndHour,
+			}
+			prevDynamicPricingConfig := models.DynamicPricingConfiguration{}
+			if err := sm.db.First(&prevDynamicPricingConfig, "pricing_id = ?", specificPricing.PricingId).Error; err != nil {
+				helpers.WriteJSON(w, http.StatusBadRequest, map[string]string{"error": "DynamicpricingConfig not properly updated" + err.Error()})
+				return
+			}
+			if err := sm.db.Model(&prevDynamicPricingConfig).Updates(dynamicPricingConfigsUpdate).Error; err != nil {
+				helpers.WriteJSON(w, http.StatusBadRequest, map[string]string{"error": "DynamicpricingConfig not properly updated" + err.Error()})
+				return
+			}
+			sm.db.Model(&prevDynamicPricingConfig).Association("OccupancyRanges").Clear()
+			for _, occupancyRangereqSpecific := range reqSpecific.DynamicPricingConfiguration.OccupancyRanges {
+				occupancyRange := models.OccupancyRange{DynamicPricingConfigurationId: prevDynamicPricingConfig.DynamicPricingConfigurationId, Start: occupancyRangereqSpecific.Start, End: occupancyRangereqSpecific.End}
+				if err := sm.db.Create(&occupancyRange).Error; err != nil {
+					helpers.WriteJSON(w, http.StatusBadRequest, map[string]string{"error": err.Error() + " " + "new specific pricing dynamic pricings occupancy range"})
+					return
+				}
+			}
+		}
+	} else if hasBaseFields {
+		fmt.Println("Updated main pricing")
+		mainPricing := models.MainPricing{}
+		if err := helpers.GetById(&mainPricing, r, sm.db); err != nil {
+			helpers.WriteJSON(w, http.StatusBadRequest, map[string]string{"error": "Main pricing not found"})
+			return
+		}
+
+		mainPricingUpdate := models.MainPricing{
+			Name:      reqBase.Name,
+			Color:     reqBase.Color,
+			StartDate: reqBase.StartDate,
+			EndDate:   reqBase.EndDate,
+		}
+		if err := sm.db.Model(&mainPricing).Select("Name", "Color", "StartDate", "StartHour", "EndDate").Updates(mainPricingUpdate).Error; err != nil {
+			helpers.WriteJSON(w, http.StatusBadRequest, map[string]string{"error": err.Error() + " " + "cant update base pricing"})
+			return
 		}
 	}
+
 }
 
 func (sm *ServiceManager) PutPricingsPriorities(w http.ResponseWriter, r *http.Request) {

@@ -212,7 +212,7 @@ func Init() *chi.Mux {
 		r.Post("/", sm.PostBasePricing)
 		r.Get("/{id}", sm.GetPricingById)
 		r.Post("/{id}/advancedPricings", sm.PostSpecficPricing)
-		r.Put("/{id}/configurations", sm.PutSpecificPricingsConfiguration)
+		r.Put("/{id}/configurations", sm.PutPricingsConfiguration)
 		r.Put("/{id}/advancedPricings/priorities", sm.PutPricingsPriorities)
 		r.Put("/tariffs", sm.PutPricingsTariffs)
 
@@ -270,7 +270,7 @@ func Init() *chi.Mux {
 			dbPort := os.Getenv("POSTGRES_PORT")
 
 			// Connect to the "postgres" maintenance DB
-			connStr := fmt.Sprintf("host=%s port=%s user=%s password=%s dbname=postgres sslmode=disable",
+			connStr := fmt.Sprintf("host=%s port=%s user=%s password=%s dbname=postgres sslmode=require",
 				dbHost, dbPort, dbUser, dbPass)
 			maintenanceDB, err := gorm.Open(postgres.Open(connStr), &gorm.Config{})
 			if err != nil {

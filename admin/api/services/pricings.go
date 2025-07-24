@@ -18,7 +18,7 @@ import (
 func (sm *ServiceManager) GetPricings(w http.ResponseWriter, r *http.Request) {
 	pricings := []models.MainPricing{}
 	productId := r.URL.Query().Get("productId")
-	sm.db.Preload("Pricings.ProductExtraBuyerTypes").Preload("Pricings.DynamicPricingConfiguration").Preload("Pricings.RecurrentTime").Preload("Pricings.ProductVenueBuyerTypes").Preload(clause.Associations).Model(&pricings).Where("product_id = ?", productId).Find(&pricings)
+	sm.db.Preload("Pricings.ProductExtraBuyerTypes").Preload("Pricings.DynamicPricingConfiguration").Preload("Pricings.DynamicPricingConfiguration.OccupancyRanges").Preload("Pricings.RecurrentTime").Preload("Pricings.ProductVenueBuyerTypes").Preload(clause.Associations).Model(&pricings).Where("product_id = ?", productId).Find(&pricings)
 	helpers.WriteJSON(w, http.StatusOK, pricings)
 }
 
@@ -154,8 +154,8 @@ func (sm *ServiceManager) PostSpecficPricing(w http.ResponseWriter, r *http.Requ
 		dynamicPricingConfigs := models.DynamicPricingConfiguration{
 			PricingId: newSpecificPricing.PricingId,
 			Type:      req.DynamicPricingConfiguration.Type,
-			StartHour: *req.DynamicPricingConfiguration.StartHour,
-			EndHour:   *req.DynamicPricingConfiguration.EndHour,
+			StartHour: req.DynamicPricingConfiguration.StartHour,
+			EndHour:   req.DynamicPricingConfiguration.EndHour,
 		}
 
 		if err := sm.db.Create(&dynamicPricingConfigs).Error; err != nil {
@@ -238,8 +238,8 @@ func (sm *ServiceManager) PutPricingsConfiguration(w http.ResponseWriter, r *htt
 			dynamicPricingConfigsUpdate := models.DynamicPricingConfiguration{
 				PricingId: specificPricing.PricingId,
 				Type:      reqSpecific.DynamicPricingConfiguration.Type,
-				StartHour: *reqSpecific.DynamicPricingConfiguration.StartHour,
-				EndHour:   *reqSpecific.DynamicPricingConfiguration.EndHour,
+				StartHour: reqSpecific.DynamicPricingConfiguration.StartHour,
+				EndHour:   reqSpecific.DynamicPricingConfiguration.EndHour,
 			}
 			prevDynamicPricingConfig := models.DynamicPricingConfiguration{}
 			if err := sm.db.First(&prevDynamicPricingConfig, "pricing_id = ?", specificPricing.PricingId).Error; err != nil {

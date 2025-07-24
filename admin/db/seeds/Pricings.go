@@ -117,15 +117,15 @@ func SeedMainPricing(db *gorm.DB) {
 
 			PricingId: 3,
 			Type:      "event_range",
-			StartHour: "10:00:00",
-			EndHour:   "18:00:00",
+			StartHour: stringPtr("10:00:00"),
+			EndHour:   stringPtr("18:00:00"),
 		},
 		{
 
 			PricingId: 4,
 			Type:      "event_range",
-			StartHour: "12:00:00",
-			EndHour:   "20:00:00",
+			StartHour: stringPtr("12:00:00"),
+			EndHour:   stringPtr("20:00:00"),
 		},
 	}
 	result = db.Create(&dynamicPricingConfigs)

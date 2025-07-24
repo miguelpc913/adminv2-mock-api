@@ -270,7 +270,7 @@ func Init() *chi.Mux {
 			dbPort := os.Getenv("POSTGRES_PORT")
 
 			// Connect to the "postgres" maintenance DB
-			connStr := fmt.Sprintf("host=%s port=%s user=%s password=%s dbname=postgres sslmode=require",
+			connStr := fmt.Sprintf("host=%s port=%s user=%s password=%s dbname=postgres sslmode=disable",
 				dbHost, dbPort, dbUser, dbPass)
 			maintenanceDB, err := gorm.Open(postgres.Open(connStr), &gorm.Config{})
 			if err != nil {

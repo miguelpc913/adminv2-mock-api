@@ -10,24 +10,24 @@ import (
 type RecurrentTime struct {
 	RecurrentTimeId int                       `json:"-" gorm:"primaryKey"`
 	PricingId       int                       `json:"-"`
-	Minutes         modelHelpers.JSONIntSLice `json:"minutes" gorm:"type:JSON"`
-	Hours           modelHelpers.JSONIntSLice `json:"hours" gorm:"type:JSON"`
+	Minutes         modelHelpers.JSONIntSLice `json:"minutes,omitempty" gorm:"type:JSON"`
+	Hours           modelHelpers.JSONIntSLice `json:"hours,omitempty" gorm:"type:JSON"`
 }
 
 type OccupancyRange struct {
 	OccupancyRangeId              int `json:"-" gorm:"primaryKey"`
 	DynamicPricingConfigurationId int `json:"-"`
 	Start                         int `json:"start"`
-	End                           int `json:"end"`
+	End                           int `json:"end,omitempty"`
 }
 
 type DynamicPricingConfiguration struct {
 	DynamicPricingConfigurationId int              `json:"-" gorm:"primaryKey"`
 	PricingId                     int              `json:"-"`
-	Type                          string           `json:"type"`                                                            // Assuming string. Adjust if it’s an enum or object.
-	StartHour                     string           `json:"startHour"`                                                       // Only relevant when type == event_range
-	EndHour                       string           `json:"endHour"`                                                         // Only relevant when type == event_range
-	OccupancyRanges               []OccupancyRange `json:"occupancyRanges" gorm:"foreignKey:DynamicPricingConfigurationId"` // must be serialized as JSON
+	Type                          string           `json:"type,omitempty"`                                                            // Assuming string. Adjust if it’s an enum or object.
+	StartHour                     *string          `json:"startHour,omitempty"`                                                       // Only relevant when type == event_range
+	EndHour                       *string          `json:"endHour,omitempty"`                                                         // Only relevant when type == event_range
+	OccupancyRanges               []OccupancyRange `json:"occupancyRanges,omitempty" gorm:"foreignKey:DynamicPricingConfigurationId"` // must be serialized as JSON
 }
 
 type SpecificPricing struct {
@@ -36,11 +36,11 @@ type SpecificPricing struct {
 	Name                        string                       `json:"name"`
 	Priority                    int                          `json:"priority"`
 	Weekdays                    modelHelpers.JSONIntSLice    `json:"weekDays" gorm:"type:JSON"`
-	EnabledDates                modelHelpers.JSONStringSlice `json:"enabledDates" gorm:"type:JSON"`
-	StartHour                   *string                      `json:"startHour"`
-	EndHour                     *string                      `json:"endHour"`
-	RecurrentTime               *RecurrentTime               `json:"recurrentTime" gorm:"foreignKey:PricingId"`
-	DynamicPricingConfiguration *DynamicPricingConfiguration `json:"dynamicPricingConfiguration" gorm:"foreignKey:PricingId"`
+	EnabledDates                modelHelpers.JSONStringSlice `json:"enabledDates,omitempty" gorm:"type:JSON"`
+	StartHour                   *string                      `json:"startHour,omitempty"`
+	EndHour                     *string                      `json:"endHour,omitempty"`
+	RecurrentTime               *RecurrentTime               `json:"recurrentTime,omitempty" gorm:"foreignKey:PricingId"`
+	DynamicPricingConfiguration *DynamicPricingConfiguration `json:"dynamicPricingConfiguration,omitempty" gorm:"foreignKey:PricingId"`
 	ProductVenueBuyerTypes      []ProductVenueBuyerTypes     `json:"productVenueBuyerTypes" gorm:"foreignKey:PricingId"`
 	ProductExtraBuyerTypes      []ProductExtraBuyerTypes     `json:"productExtraBuyerTypes" gorm:"foreignKey:PricingId"`
 	Default                     bool                         `json:"default"`
